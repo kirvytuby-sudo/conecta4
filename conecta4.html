@@ -691,13 +691,13 @@ const VR={
   },
 };
 const DADO={
-  atrevido:{acc:['Besar','Lamer','Chupar','Acariciar','Frotar','Mordisquear','Desnudar'],
+  atrevido:{acc:['Besar','Lamer','Chupar','Acariciar','Frotar','Desnudar','Penetrar','Penetrar'],
     zona:['Entrepierna','Nalgas','Pezones','Cuello','Entrepierna','Donde tú elijas'],
     zonaM:['Clítoris','Clítoris','Vulva','Vulva','Pezones','Pezones','Senos','Nalgas','Entrepierna','Cuello','Donde tú elijas'],
     zonaH:['Pene','Pene','Pene','Testículos','Pezones','Nalgas','Entrepierna','Entrepierna','Cuello','Donde tú elijas'],
     pos:['Misionero','Perrito','Vaquera','Cucharita','De pie','Sentados','Tú eliges'],
     t:[15,20,30,40,45,60]},
-  intimo:{acc:['Chupar','Lamer','Besar','Acariciar','Mordisquear','Masajear con aceite','Frotar','Soplar','Tú eliges'],
+  intimo:{acc:['Chupar','Lamer','Besar','Acariciar','Frotar','Soplar','Tú eliges','Penetrar','Penetrar','Penetrar'],
     zona:['Entrepierna','Nalgas','Pezones','Entrepierna','Nalgas','Donde tú elijas'],
     // zonas íntimas con más peso (las repetidas salen más seguido)
     zonaM:['Clítoris','Clítoris','Clítoris','Vulva','Vulva','Vulva','Pezones','Pezones','Senos','Senos','Nalgas','Entrepierna','Entrepierna','Donde tú elijas'],
@@ -706,10 +706,20 @@ const DADO={
     t:[15,20,30,40,45,60]},
 };
 const DADO_LV={atrevido:'🔥 Atrevido',intimo:'🔥🔥 Íntimo'};
-const DADO_IC={Desnudar:'👙',Chupar:'👄',Lamer:'👅',Besar:'💋',Acariciar:'🤲','Masajear con aceite':'💧',Masajear:'💆',Frotar:'✋',Soplar:'🌬️','Soplar suave':'🌬️',Mordisquear:'😬','Tú eliges':'🎯',
+const DADO_IC={Penetrar:'🔥',Desnudar:'👙',Chupar:'👄',Lamer:'👅',Besar:'💋',Acariciar:'🤲','Masajear con aceite':'💧',Masajear:'💆',Frotar:'✋',Soplar:'🌬️','Soplar suave':'🌬️',Mordisquear:'😬','Tú eliges':'🎯',
   Cuello:'🦢',Labios:'👄',Orejas:'👂',Abdomen:'⭐',Muslos:'🦵',Entrepierna:'🔥',Nalgas:'🍑',Pezones:'🍒',Senos:'🍒',Pecho:'💪',Clítoris:'💎',Vulva:'🌸',Pene:'🍆',Testículos:'🥜','Espalda baja':'〰️','Donde tú elijas':'🎯',
   Misionero:'🛏️',Perrito:'🐕',Vaquera:'🤠','Vaquera invertida':'🔄',Cucharita:'🥄','De pie':'🧍',Loto:'🪷',Sentados:'🪑','De lado':'↔️'};
 const dIc=w=>DADO_IC[w]||'🎲';
+const POS_DESC={Misionero:'Quien recibe, acostado boca arriba; la otra persona encima, de frente.',
+  Perrito:'Quien recibe, apoyado en manos y rodillas; la otra persona detrás.',
+  Vaquera:'Una persona acostada boca arriba; la otra encima, sentada de frente.',
+  'Vaquera invertida':'Como vaquera, pero quien va encima mira hacia los pies de su pareja.',
+  Cucharita:'Los dos acostados de lado, uno detrás del otro, como cucharas.',
+  'De pie':'Los dos parados, de frente o uno detrás del otro, con apoyo en la pared.',
+  Loto:'Uno sentado con las piernas cruzadas; el otro sentado encima, de frente y abrazados.',
+  Sentados:'Uno sentado en una silla o en la orilla de la cama; el otro encima, de frente o de espaldas.',
+  'De lado':'Los dos acostados de lado, de frente, con las piernas entrelazadas.',
+  'Tú eliges':'Elijan la posición que más les guste.'};
 function dadoZonas(L,receiverBody){return receiverBody==='m'&&L.zonaM?L.zonaM:receiverBody==='h'&&L.zonaH?L.zonaH:L.zona}
 let audioCtx=null;
 document.addEventListener('pointerdown',()=>{try{if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}catch(e){}},{passive:true});
@@ -931,7 +941,7 @@ function act(p,a){
     }
     if(a.k==='droll'&&G.phase==='roll'&&G.won===p){
       const L=DADO[G.level], r=n=>Math.floor(Math.random()*n);
-      const T=L.t||DADO_T, Z=dadoZonas(L,S.body&&S.body[other(G.doer)]); G.count++; G.timer=null; G.roll={doer:G.doer,acc:L.acc[r(L.acc.length)],zona:Z[r(Z.length)],pos:L.pos?L.pos[r(L.pos.length)]:null,t:T[r(T.length)],n:G.count}; G.phase='show'; return commit();
+      const T=L.t||DADO_T, Z=dadoZonas(L,S.body&&S.body[other(G.doer)]); G.count++; G.timer=null; const ac=L.acc[r(L.acc.length)], pen=ac==='Penetrar'&&L.pos; G.roll={doer:G.doer,acc:ac,zona:pen?null:Z[r(Z.length)],pos:pen?L.pos[r(L.pos.length)]:null,t:T[r(T.length)],n:G.count}; G.phase='show'; return commit();
     }
     if(a.k==='dnext'&&G.phase==='show'){
       Object.assign(G,{phase:'duel',duel:{A:null,B:null},show:{A:null,B:null},tie:null,won:null,doer:null,timer:null,round:G.round+1});
@@ -1735,8 +1745,8 @@ function renderDado(){
     const cell=(v,lab,ic)=>`<div><em class="dic">${ic}</em><span>${esc(v)}</span><small>${lab}</small></div>`;
     const timerOn=G.timer&&G.timer.n===R.n;
     card=`<section class="vcard reto"><div class="label">Ronda ${G.round} · ${R.doer===me?'tú se lo haces a tu pareja':'tu pareja te lo hace a ti'}</div>
-      <div class="dice3${R.pos?' four':''}">${cell(R.acc,'Acción',dIc(R.acc))}${cell(R.zona,'Zona',dIc(R.zona))}${R.pos?cell(R.pos,'Posición',dIc(R.pos)):''}${cell(fmtT(R.t),'Tiempo','⏱️')}</div>
-      ${R.pos?'<p class="vtip">Primero la acción en la zona, luego la posición durante el tiempo.</p>':''}</section>
+      <div class="dice3">${cell(R.acc,'Acción',dIc(R.acc))}${R.zona?cell(R.zona,'Zona',dIc(R.zona)):''}${R.pos?cell(R.pos,'Posición',dIc(R.pos)):''}${cell(fmtT(R.t),'Tiempo','⏱️')}</div>
+      ${R.pos?`<p class="vtip"><b>${esc(R.pos)}:</b> ${esc(POS_DESC[R.pos]||'')}</p>`:''}</section>
       ${timerOn?`<section class="dclock" id="dclock"><svg viewBox="0 0 120 120"><circle class="trk" cx="60" cy="60" r="52"/><circle class="prg" id="dprg" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"/></svg>
         <div class="dnum"><b id="dnum">${R.t}</b><small id="dlab">segundos</small></div></section>`
         :`<button id="dtimer" class="timerbtn" ${connected?'':'disabled'}>⏱️ Iniciar cronómetro · ${fmtT(R.t)}</button>`}
@@ -1788,7 +1798,7 @@ function renderDado(){
     tick(); if(!dTimer.done)dTimer.iv=setInterval(tick,200);
   }
   if(fresh){
-    const L=DADO[G.level], Z=dadoZonas(L,B[other(R.doer)]), pools=[L.acc,Z,...(R.pos?[L.pos]:[]),(L.t||DADO_T).map(fmtT)], finals=[R.acc,R.zona,...(R.pos?[R.pos]:[]),fmtT(R.t)];
+    const L=DADO[G.level], Z=dadoZonas(L,B[other(R.doer)]), pools=[L.acc,...(R.zona?[Z]:[]),...(R.pos?[L.pos]:[]),(L.t||DADO_T).map(fmtT)], finals=[R.acc,...(R.zona?[R.zona]:[]),...(R.pos?[R.pos]:[]),fmtT(R.t)];
     const tb=document.getElementById('dtimer'); if(tb){tb.disabled=true;dadoTimers.push(setTimeout(()=>{tb.disabled=!connected},700+450*3))}
     const boxes=[...view.querySelectorAll('.dice3 > div')];
     const st=view.querySelector('.status'), btn=document.getElementById('dnext'), finalStatus=st?st.textContent:'';
