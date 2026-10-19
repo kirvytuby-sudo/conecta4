@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Conecta 4 en Línea</title>
+<title>Sala de Juegos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;700&display=swap">
 <style>
 :root{
   --bg:#eef1f4; --surface:#ffffff; --ink:#152331; --muted:#5b6b7b; --line:#d5dde5;
-  --board:#1f4e79; --hole:#e3e9ef; --red:#e2483d; --yellow:#f2b52b; --accent:#1f6fb8;
+  --board:#1f4e79; --hole:#e3e9ef; --red:#e2483d; --yellow:#f2b52b; --accent:#1f6fb8; --ok:#1c8a5a;
   --display:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
   --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root{
   --bg:#0f1720; --surface:#17222e; --ink:#e7eef5; --muted:#93a3b3; --line:#2a3846;
-  --board:#24527d; --hole:#0d141b; --red:#f05a4f; --yellow:#f5c142; --accent:#5aa6ec; color-scheme:dark}}
+  --board:#24527d; --hole:#0d141b; --red:#f05a4f; --yellow:#f5c142; --accent:#5aa6ec; --ok:#3cc28a; color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{min-height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.45 var(--body);
@@ -35,22 +35,39 @@ h2{font:600 18px/1.2 var(--display);margin:0}
 .row > *{flex:1 1 120px;min-width:0}
 button{font:700 16px var(--body);border:0;border-radius:10px;padding:13px 16px;cursor:pointer;background:var(--accent);color:#fff;min-height:48px}
 button.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
-button:disabled{opacity:.5;cursor:default}
+button:disabled{opacity:.45;cursor:default}
 button:focus-visible,input:focus-visible,.col:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-input{font:700 20px var(--body);letter-spacing:.25em;text-transform:uppercase;text-align:center;border:1.5px solid var(--line);
+input{font:700 20px var(--body);letter-spacing:.2em;text-transform:uppercase;text-align:center;border:1.5px solid var(--line);
   border-radius:10px;padding:10px;background:var(--bg);color:var(--ink);min-height:48px;width:100%}
 .label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
 .msg{color:var(--muted);font-size:14px;margin:0}
 .err{color:var(--red);font-size:14px;margin:0}
 .code{font:800 40px/1 var(--display);letter-spacing:.18em;text-align:center}
 .link{font-size:13px;word-break:break-all;text-align:center;color:var(--muted);user-select:all}
+.center{text-align:center}
+
+/* Menú */
+.games{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.game{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px;color:var(--ink);text-align:left;
+  display:flex;flex-direction:column;gap:6px;min-height:120px;font-weight:500}
+.game:hover{border-color:var(--accent)}
+.game .ic{font-size:30px;line-height:1}
+.game b{font:600 17px/1.2 var(--display)}
+.game small{color:var(--muted);font-size:13px;font-weight:500}
+
+/* Cabecera de juego */
+.ghead{display:flex;align-items:center;gap:10px}
+.ghead h2{flex:1;min-width:0}
+.ghead button{min-height:40px;padding:8px 12px;font-size:14px}
 .players{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pl{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:2px solid transparent;background:var(--surface);min-width:0}
 .pl.active{border-color:var(--ink)}
-.pl .disc{width:22px;height:22px;flex:none}
+.pl .tok{width:24px;height:24px;flex:none;display:grid;place-items:center;font:800 18px var(--display)}
 .pl .n{min-width:0;font-weight:700}
 .pl small{display:block;color:var(--muted);font-weight:500;font-size:12px}
 .status{font:600 20px/1.2 var(--display);text-align:center;min-height:24px;margin:0}
+
+/* Conecta 4 */
 .board{background:var(--board);border-radius:16px;padding:8px;display:grid;grid-template-columns:repeat(7,1fr);box-shadow:inset 0 -6px 0 rgba(0,0,0,.18)}
 .col{display:grid;grid-template-rows:repeat(6,1fr);border-radius:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .col.can:hover{background:rgba(255,255,255,.08)}
@@ -59,61 +76,442 @@ input{font:700 20px var(--body);letter-spacing:.25em;text-transform:uppercase;te
 .hole{width:100%;height:100%;border-radius:50%;background:var(--hole);box-shadow:inset 0 3px 4px rgba(0,0,0,.25);position:relative}
 .disc{border-radius:50%;display:block}
 .hole .disc{position:absolute;inset:0}
-.disc.r{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),transparent 45%),var(--red)}
-.disc.y{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.45),transparent 45%),var(--yellow)}
+.disc.A{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),transparent 45%),var(--red)}
+.disc.B{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.45),transparent 45%),var(--yellow)}
 .disc.drop{animation:drop .42s cubic-bezier(.3,0,.5,1.4) both}
 @keyframes drop{from{transform:translateY(var(--from))}to{transform:translateY(0)}}
 .disc.win{box-shadow:0 0 0 4px var(--surface),0 0 0 7px var(--ink)}
-@media (prefers-reduced-motion:reduce){.disc.drop{animation:none}}
+
+/* Gato */
+.gato{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:var(--line);border-radius:16px;padding:8px}
+.gcell{aspect-ratio:1;background:var(--surface);border-radius:10px;display:grid;place-items:center;font:800 clamp(48px,16vw,72px)/1 var(--display);
+  border:0;padding:0;color:var(--ink);min-height:0}
+.gcell.A{color:var(--red)} .gcell.B{color:var(--yellow)}
+.gcell.win{background:var(--bg);box-shadow:inset 0 0 0 3px var(--ink)}
+.gcell:disabled{opacity:1;cursor:default}
+.gcell.pop{animation:pop .25s ease-out}
+@keyframes pop{from{transform:scale(.4)}to{transform:scale(1)}}
+
+/* Piedra papel tijera */
+.ppt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ppt button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 6px;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);font-size:14px}
+.ppt button span{font-size:40px;line-height:1}
+.ppt button.sel{border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+.reveal{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center}
+.reveal .big{font-size:52px;line-height:1}
+.reveal small{display:block;color:var(--muted);font-size:13px}
+.hist{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.hist i{font-style:normal;font-size:13px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+.hist i.w{background:var(--ok);color:#fff;border-color:transparent}
+.hist i.l{background:var(--red);color:#fff;border-color:transparent}
+
+/* Ahorcado */
+.hang{display:flex;justify-content:center}
+.hang svg{width:150px;height:auto}
+.hang .p{stroke:var(--ink);stroke-width:4;stroke-linecap:round;fill:none}
+.hang .p.miss{stroke:var(--red)}
+.word{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font:800 26px/1 var(--display)}
+.word span{width:26px;border-bottom:3px solid var(--ink);text-align:center;padding-bottom:4px;min-height:34px}
+.word span.sp{border:0;width:12px}
+.word span.lost{color:var(--red)}
+.keys{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.keys button{min-height:42px;padding:0;font-size:16px;background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.keys button.hit{background:var(--ok);color:#fff;border-color:transparent;opacity:1}
+.keys button.no{background:var(--bg);color:var(--muted);text-decoration:line-through;opacity:1}
+
+/* Batalla naval */
+.bn{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;background:var(--board);border-radius:12px;padding:6px}
+.bn .sq{aspect-ratio:1;border:0;border-radius:4px;padding:0;min-height:0;background:color-mix(in srgb,var(--board) 55%,#9cc7f0);
+  display:grid;place-items:center;font-size:clamp(12px,4vw,18px);color:#fff}
+.bn .sq.ship{background:#7d8b99}
+.bn .sq.miss::after{content:"";width:28%;height:28%;border-radius:50%;background:rgba(255,255,255,.75)}
+.bn .sq.hit{background:var(--red)}
+.bn .sq.sunk{background:#3a2a2a}
+.bn .sq.can{cursor:pointer}
+.bn .sq.can:hover{outline:2px solid #fff}
+.bn .sq.lastshot{box-shadow:inset 0 0 0 3px var(--yellow)}
+.bn.small{width:100%;max-width:220px;margin:0 auto;gap:2px;padding:4px}
+.bn.small .sq{font-size:10px}
+.fleetinfo{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted)}
+
+/* Damas */
+.dm{display:grid;grid-template-columns:repeat(8,1fr);border-radius:10px;overflow:hidden;border:4px solid #6b4a2b}
+.dm .sq{aspect-ratio:1;display:grid;place-items:center;border:0;border-radius:0;padding:0;min-height:0;background:#ecd9b6}
+.dm .sq.dk{background:#8a6240}
+.dm .sq.tgt{box-shadow:inset 0 0 0 4px var(--ok);cursor:pointer}
+.dm .sq.tgt::after{content:"";width:30%;height:30%;border-radius:50%;background:var(--ok);opacity:.8}
+.dm .pc{width:78%;height:78%;border-radius:50%;display:grid;place-items:center;font-size:clamp(12px,4vw,20px);color:#fff;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.dm .pc.A{background:var(--red)} .dm .pc.B{background:var(--yellow);color:#4a3200}
+.dm .sq.mov .pc{outline:3px solid #fff;cursor:pointer}
+.dm .sq.sel .pc{outline:3px solid var(--ok);transform:scale(1.08)}
+.dm .sq.last{box-shadow:inset 0 0 0 3px rgba(255,255,255,.55)}
+
+/* Damas chinas y puntos y cajas */
+.svgbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px}
+.svgbox svg{display:block;width:100%;height:auto;touch-action:manipulation}
+.cc-hole{fill:var(--hole);stroke:var(--line);stroke-width:.08}
+.cc-goalA{fill:color-mix(in srgb,var(--red) 18%,var(--hole))}
+.cc-goalB{fill:color-mix(in srgb,var(--yellow) 22%,var(--hole))}
+.cc-A{fill:var(--red)} .cc-B{fill:var(--yellow)}
+.cc-mov{stroke:var(--ink);stroke-width:.18;cursor:pointer}
+.cc-sel{stroke:var(--ok);stroke-width:.32}
+.cc-tgt{fill:var(--ok);opacity:.55;cursor:pointer}
+.cc-last{stroke:var(--ink);stroke-width:.14;stroke-dasharray:.3 .2}
+.db-dot{fill:var(--ink)}
+.db-line{stroke-width:2.6;stroke-linecap:round}
+.db-A{stroke:var(--red)} .db-B{stroke:var(--yellow)}
+.db-hit{stroke:transparent;stroke-width:9;cursor:pointer}
+.db-hit:hover + .db-ghost,.db-ghost.show{stroke:var(--muted);opacity:.5}
+.db-ghost{stroke:transparent;stroke-width:2;stroke-dasharray:2 2;pointer-events:none}
+.db-boxA{fill:color-mix(in srgb,var(--red) 35%,transparent)} .db-boxB{fill:color-mix(in srgb,var(--yellow) 45%,transparent)}
+.db-lbl{font:800 7px var(--display);fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+
 .foot{color:var(--muted);font-size:13px;text-align:center;margin:0}
-.conn{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2fae6b;margin-right:6px;vertical-align:middle}
+.conn{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:middle}
 .conn.off{background:var(--red)}
+@media (prefers-reduced-motion:reduce){.disc.drop,.gcell.pop{animation:none}}
 </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <h1><span class="dots"><i></i><i></i><i></i><i></i></span>Conecta 4</h1>
-    <p class="sub">Dos jugadores, cada uno en su celular. Alinea cuatro fichas en horizontal, vertical o diagonal.</p>
+    <h1><span class="dots"><i></i><i></i><i></i><i></i></span>Sala de Juegos</h1>
+    <p class="sub">Dos jugadores, cada uno en su celular. Se conectan una vez y eligen a qué jugar.</p>
   </header>
   <main id="view"></main>
 </div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
-const ROWS=6, COLS=7, EMPTY='.'.repeat(ROWS*COLS);
 const ALPH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const PREFIX='conecta4-kv-';
 const view=document.getElementById('view');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const other=p=>p==='A'?'B':'A';
 
-let peer=null, conn=null, myColor=null, code=null, errMsg='', connected=false;
-let g=null, lastAnimKey=null;
+let peer=null, conn=null, me=null, code=null, errMsg='', connected=false, isHost=false;
+let S=null;            // estado compartido (el anfitrión manda)
+let lastKey=null;      // para animar la última jugada
 
-function freshGame(starter,score){return {board:EMPTY,turn:starter,starter,status:'playing',winner:null,winLine:null,last:null,moves:0,score:score||{r:0,y:0}}}
-function winLine(b){
-  const at=(r,c)=>(r<0||r>=ROWS||c<0||c>=COLS)?null:b[r*COLS+c];
-  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+const GAMES={
+  c4:{name:'Conecta 4',ic:'🔴',desc:'Alinea 4 fichas'},
+  gato:{name:'Gato',ic:'❌',desc:'Tres en línea'},
+  ppt:{name:'Piedra, papel o tijera',ic:'✂️',desc:'Al mejor de 5'},
+  ahor:{name:'Ahorcado',ic:'🔤',desc:'Adivina la palabra'},
+  naval:{name:'Batalla naval',ic:'🚢',desc:'Hunde su flota'},
+  damas:{name:'Damas',ic:'⚫',desc:'Captura obligatoria'},
+  chinas:{name:'Damas chinas',ic:'⭐',desc:'Cruza la estrella'},
+  cajas:{name:'Puntos y cajas',ic:'🔲',desc:'Cierra más cuadros'},
+};
+let sel=null, selKey=null, navalDraft=null; // selección local (no se comparte)
+
+/* ================= Reglas ================= */
+function lineWin(b,cols,rows,need){
+  const at=(r,c)=>(r<0||r>=rows||c<0||c>=cols)?null:b[r*cols+c];
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
     const p=at(r,c); if(p==='.')continue;
     for(const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1]]){
-      const line=[r*COLS+c]; let k=1;
-      while(k<4&&at(r+dr*k,c+dc*k)===p){line.push((r+dr*k)*COLS+c+dc*k);k++}
-      if(k===4)return line;
+      const line=[r*cols+c]; let k=1;
+      while(k<need&&at(r+dr*k,c+dc*k)===p){line.push((r+dr*k)*cols+c+dc*k);k++}
+      if(k===need)return line;
     }
   }
   return null;
 }
-function dropRow(b,c){for(let r=ROWS-1;r>=0;r--)if(b[r*COLS+c]==='.')return r;return -1}
+function dropRow(b,c){for(let r=5;r>=0;r--)if(b[r*7+c]==='.')return r;return -1}
+
+function initGame(game,prev){
+  const starter=prev?other(prev.starter):'A';
+  if(game==='c4')return {board:'.'.repeat(42),turn:starter,starter,status:'playing',winner:null,winLine:null,last:null,moves:0};
+  if(game==='gato')return {board:'.'.repeat(9),turn:starter,starter,status:'playing',winner:null,winLine:null,last:null,moves:0};
+  if(game==='ppt')return {starter,pick:{A:null,B:null},rounds:[],wins:{A:0,B:0},status:'playing',winner:null};
+  if(game==='ahor')return {starter,setter:starter,phase:'setting',word:'',guessed:'',misses:0,status:'playing',winner:null};
+  if(game==='naval')return {starter,turn:starter,phase:'placing',ready:{A:false,B:false},fleet:{A:null,B:null},shots:{A:'.'.repeat(64),B:'.'.repeat(64)},last:{A:null,B:null},status:'playing',winner:null};
+  if(game==='damas'){
+    let b='';for(let r=0;r<8;r++)for(let c=0;c<8;c++)b+=(r+c)%2===1?(r<3?'b':r>4?'a':'.'):'.';
+    return {board:b,turn:starter,starter,chain:null,last:null,status:'playing',winner:null};
+  }
+  if(game==='chinas'){
+    let b='';CC.cells.forEach(cl=>b+=cl.r>=13?'A':cl.r<=3?'B':'.');
+    return {board:b,turn:starter,starter,last:null,status:'playing',winner:null};
+  }
+  if(game==='cajas')return {h:'.'.repeat(20),v:'.'.repeat(20),box:'.'.repeat(16),pts:{A:0,B:0},turn:starter,starter,last:null,status:'playing',winner:null};
+}
+function newRoom(){const score={};Object.keys(GAMES).forEach(k=>score[k]={A:0,B:0});return {game:null,v:0,g:{},score}}
+
+/* --- Batalla naval --- */
+const NAVAL_FLEET=[4,3,3,2];
+function randomFleet(){
+  for(let tries=0;tries<200;tries++){
+    const used=new Set(), ships=[]; let ok=true;
+    for(const L of NAVAL_FLEET){
+      let placed=false;
+      for(let t=0;t<100&&!placed;t++){
+        const hor=Math.random()<.5, r=Math.floor(Math.random()*(hor?8:9-L)), c=Math.floor(Math.random()*(hor?9-L:8));
+        const cells=[];for(let k=0;k<L;k++)cells.push(hor?r*8+c+k:(r+k)*8+c);
+        if(cells.every(i=>!used.has(i))){cells.forEach(i=>used.add(i));ships.push(cells);placed=true}
+      }
+      if(!placed){ok=false;break}
+    }
+    if(ok)return ships;
+  }
+}
+function validFleet(sh){
+  if(!Array.isArray(sh)||sh.length!==NAVAL_FLEET.length)return false;
+  const lens=sh.map(s=>Array.isArray(s)?s.length:0).sort(), want=[...NAVAL_FLEET].sort();
+  if(lens.some((l,i)=>l!==want[i]))return false;
+  const used=new Set();
+  for(const s of sh){
+    const t=[...s].map(Number).sort((a,b)=>a-b);
+    if(t.some(i=>!Number.isInteger(i)||i<0||i>63||used.has(i)))return false;
+    const sameRow=t.every(i=>Math.floor(i/8)===Math.floor(t[0]/8));
+    const step=sameRow?1:8;
+    for(let k=1;k<t.length;k++)if(t[k]-t[k-1]!==step)return false;
+    t.forEach(i=>used.add(i));
+  }
+  return true;
+}
+const shipSunk=(ship,shots)=>ship.every(i=>shots[i]==='x');
+
+/* --- Damas --- */
+const dmOwner=ch=>ch==='.'?null:(ch.toLowerCase()==='a'?'A':'B');
+function dmMoves(G,p){
+  const b=G.board, caps=[], steps=[];
+  const fwd=p==='A'?-1:1;
+  for(let i=0;i<64;i++){
+    if(dmOwner(b[i])!==p)continue;
+    if(G.chain!=null&&G.chain!==i)continue;
+    const r=i>>3,c=i&7, king=b[i]===b[i].toUpperCase();
+    const dirs=king?[[-1,-1],[-1,1],[1,-1],[1,1]]:[[fwd,-1],[fwd,1]];
+    for(const [dr,dc] of dirs){
+      const r1=r+dr,c1=c+dc,r2=r+2*dr,c2=c+2*dc;
+      if(r1<0||r1>7||c1<0||c1>7)continue;
+      const m=r1*8+c1;
+      if(b[m]==='.'){if(G.chain==null)steps.push({from:i,to:m,cap:null});continue}
+      if(dmOwner(b[m])!==p&&r2>=0&&r2<=7&&c2>=0&&c2<=7&&b[r2*8+c2]==='.')caps.push({from:i,to:r2*8+c2,cap:m});
+    }
+  }
+  return caps.length?caps:steps;
+}
+
+/* --- Damas chinas: estrella de 121 casillas --- */
+const CC=(()=>{
+  const LEN=[1,2,3,4,13,12,11,10,9,10,11,12,13,4,3,2,1], cells=[], at={};
+  LEN.forEach((L,r)=>{for(let k=0;k<L;k++){const x=12-(L-1)+2*k;at[r*25+x]=cells.length;cells.push({r,x})}});
+  const DIRS=[[0,2],[0,-2],[1,1],[1,-1],[-1,1],[-1,-1]];
+  const nb=(i,d,m=1)=>{const c=cells[i],r=c.r+d[0]*m,x=c.x+d[1]*m,k=r*25+x;return (r>=0&&r<=16&&x>=0&&x<=24&&k in at)?at[k]:-1};
+  const goal={A:[],B:[]};cells.forEach((c,i)=>{if(c.r<=3)goal.A.push(i);if(c.r>=13)goal.B.push(i)});
+  return {cells,DIRS,nb,goal};
+})();
+function ccReach(b,from){
+  const out=new Set();
+  for(const d of CC.DIRS){const n=CC.nb(from,d);if(n>=0&&b[n]==='.')out.add(n)}
+  const seen=new Set([from]), q=[from];
+  while(q.length){
+    const cur=q.shift();
+    for(const d of CC.DIRS){
+      const m=CC.nb(cur,d), l=CC.nb(cur,d,2);
+      if(m>=0&&l>=0&&b[m]!=='.'&&b[l]==='.'&&!seen.has(l)){seen.add(l);out.add(l);q.push(l)}
+    }
+  }
+  return out;
+}
+function ccWon(b,p){const g=CC.goal[p];return g.every(i=>b[i]!=='.')&&g.some(i=>b[i]===p)}
+
+/* --- Puntos y cajas (4x4 cuadros) --- */
+function cajaDone(G,r,c){return G.h[r*4+c]!=='.'&&G.h[(r+1)*4+c]!=='.'&&G.v[r*5+c]!=='.'&&G.v[r*5+c+1]!=='.'}
+
+function cleanWord(w){
+  return String(w||'').toUpperCase().replace(/Ñ/g,'\u0001').normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/\u0001/g,'Ñ').replace(/[^A-ZÑ ]/g,'').replace(/\s+/g,' ').trim();
+}
+const PPT_BEATS={piedra:'tijera',tijera:'papel',papel:'piedra'};
+
+/* Aplica una acción de un jugador al estado. Solo lo ejecuta el anfitrión. */
+function act(p,a){
+  if(!S||!a)return;
+  if(a.k==='pick'&&GAMES[a.game]){S.game=a.game;S.g[a.game]=initGame(a.game,S.g[a.game]&&S.g[a.game].status==='done'?S.g[a.game]:null);return commit()}
+  if(a.k==='menu'){S.game=null;return commit()}
+  const G=S.g[S.game]; if(!G)return;
+  if(a.k==='again'&&G.status==='done'){S.g[S.game]=initGame(S.game,G);return commit()}
+
+  if(S.game==='c4'&&a.k==='c4'){
+    if(G.status!=='playing'||G.turn!==p)return;
+    const c=a.c|0, r=dropRow(G.board,c); if(c<0||c>6||r<0)return;
+    const i=r*7+c; G.board=G.board.slice(0,i)+p+G.board.slice(i+1); G.last=i; G.moves++; G.turn=other(p);
+    const line=lineWin(G.board,7,6,4);
+    if(line){G.status='done';G.winner=p;G.winLine=line;S.score.c4[p]++}
+    else if(!G.board.includes('.')){G.status='done';G.winner='draw'}
+    return commit();
+  }
+  if(S.game==='gato'&&a.k==='gato'){
+    if(G.status!=='playing'||G.turn!==p)return;
+    const i=a.i|0; if(i<0||i>8||G.board[i]!=='.')return;
+    G.board=G.board.slice(0,i)+p+G.board.slice(i+1); G.last=i; G.moves++; G.turn=other(p);
+    const line=lineWin(G.board,3,3,3);
+    if(line){G.status='done';G.winner=p;G.winLine=line;S.score.gato[p]++}
+    else if(!G.board.includes('.')){G.status='done';G.winner='draw'}
+    return commit();
+  }
+  if(S.game==='ppt'&&a.k==='ppt'){
+    if(G.status!=='playing'||G.pick[p]||!PPT_BEATS[a.v])return;
+    G.pick[p]=a.v;
+    if(G.pick.A&&G.pick.B){
+      const w=G.pick.A===G.pick.B?'draw':(PPT_BEATS[G.pick.A]===G.pick.B?'A':'B');
+      G.rounds.push({A:G.pick.A,B:G.pick.B,w}); if(w!=='draw')G.wins[w]++;
+      G.pick={A:null,B:null};
+      if(G.wins[w]>=3){G.status='done';G.winner=w;S.score.ppt[w]++}
+    }
+    return commit();
+  }
+  if(S.game==='ahor'){
+    if(a.k==='word'){
+      if(G.phase!=='setting'||G.setter!==p)return;
+      const w=cleanWord(a.w); const letters=w.replace(/ /g,'');
+      if(letters.length<3||w.length>20)return;
+      G.word=w; G.phase='guessing'; return commit();
+    }
+    if(a.k==='letter'){
+      if(G.phase!=='guessing'||G.status!=='playing'||G.setter===p)return;
+      const l=String(a.l||'').toUpperCase(); if(!/^[A-ZÑ]$/.test(l)||G.guessed.includes(l))return;
+      G.guessed+=l; if(!G.word.includes(l))G.misses++;
+      const solved=[...G.word].every(ch=>ch===' '||G.guessed.includes(ch));
+      if(solved){G.status='done';G.winner=other(G.setter);S.score.ahor[G.winner]++}
+      else if(G.misses>=6){G.status='done';G.winner=G.setter;S.score.ahor[G.setter]++}
+      return commit();
+    }
+  }
+  if(S.game==='naval'){
+    if(a.k==='fleet'){
+      if(G.phase!=='placing'||G.ready[p]||!validFleet(a.ships))return;
+      G.fleet[p]=a.ships.map(s=>s.map(Number)); G.ready[p]=true;
+      if(G.ready.A&&G.ready.B)G.phase='playing';
+      return commit();
+    }
+    if(a.k==='shot'){
+      if(G.phase!=='playing'||G.status!=='playing'||G.turn!==p)return;
+      const i=a.i|0, sh=G.shots[p]; if(i<0||i>63||sh[i]!=='.')return;
+      const hit=G.fleet[other(p)].some(s=>s.includes(i));
+      G.shots[p]=sh.slice(0,i)+(hit?'x':'o')+sh.slice(i+1); G.last[p]=i;
+      if(G.fleet[other(p)].every(s=>shipSunk(s,G.shots[p]))){G.status='done';G.winner=p;S.score.naval[p]++}
+      else if(!hit)G.turn=other(p);   // si aciertas, vuelves a tirar
+      return commit();
+    }
+  }
+  if(S.game==='damas'&&a.k==='dm'){
+    if(G.status!=='playing'||G.turn!==p)return;
+    const mv=dmMoves(G,p).find(m=>m.from===a.from&&m.to===a.to); if(!mv)return;
+    const b=G.board.split('');
+    let piece=b[mv.from]; b[mv.from]='.'; if(mv.cap!=null)b[mv.cap]='.';
+    const r=mv.to>>3, promote=piece===piece.toLowerCase()&&((p==='A'&&r===0)||(p==='B'&&r===7));
+    if(promote)piece=piece.toUpperCase();
+    b[mv.to]=piece; G.board=b.join(''); G.last=[mv.from,mv.to];
+    G.chain=null;
+    if(mv.cap!=null&&!promote){
+      G.chain=mv.to;
+      if(!dmMoves(G,p).some(m=>m.cap!=null))G.chain=null;
+    }
+    if(G.chain==null)G.turn=other(p);
+    if(G.chain==null&&!dmMoves(G,G.turn).length){G.status='done';G.winner=p;S.score.damas[p]++}
+    return commit();
+  }
+  if(S.game==='chinas'&&a.k==='cc'){
+    if(G.status!=='playing'||G.turn!==p)return;
+    const f=a.from|0,t=a.to|0; if(G.board[f]!==p||!ccReach(G.board,f).has(t))return;
+    const b=G.board.split(''); b[f]='.'; b[t]=p; G.board=b.join(''); G.last=[f,t];
+    if(ccWon(G.board,p)){G.status='done';G.winner=p;S.score.chinas[p]++}
+    else G.turn=other(p);
+    return commit();
+  }
+  if(S.game==='cajas'&&a.k==='line'){
+    if(G.status!=='playing'||G.turn!==p)return;
+    const t=a.t==='h'?'h':'v', i=a.i|0; if(i<0||i>19||G[t][i]!=='.')return;
+    G[t]=G[t].slice(0,i)+p+G[t].slice(i+1); G.last=t+i;
+    let got=0;
+    for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+      const k=r*4+c; if(G.box[k]==='.'&&cajaDone(G,r,c)){G.box=G.box.slice(0,k)+p+G.box.slice(k+1);got++}
+    }
+    G.pts[p]+=got;
+    if(!G.box.includes('.')){G.status='done';G.winner=G.pts.A===G.pts.B?'draw':(G.pts.A>G.pts.B?'A':'B');if(G.winner!=='draw')S.score.cajas[G.winner]++}
+    else if(!got)G.turn=other(p);
+    return commit();
+  }
+}
+function commit(){S.v++;send({t:'state',S});render()}
+
+/* Lo que hace este celular cuando el jugador toca algo */
+function doAct(a){
+  if(!connected)return;
+  if(isHost)act(me,a); else send({t:'act',a});
+}
+
+/* ================= Conexión ================= */
 function newCode(){let s='';const a=new Uint32Array(4);crypto.getRandomValues(a);for(const n of a)s+=ALPH[n%ALPH.length];return s}
 function shareUrl(c){return location.origin+location.pathname+'?sala='+c}
 
-/* ---------- Inicio ---------- */
+function host(tries=0){
+  if(typeof Peer==='undefined'){errMsg='No se pudo cargar el módulo de conexión. Revisa tu internet.';return renderHome()}
+  errMsg=''; code=newCode(); me='A'; isHost=true; S=newRoom();
+  renderMsg('Creando sala…');
+  peer=new Peer(PREFIX+code);
+  peer.on('open',()=>renderWaiting());
+  peer.on('error',e=>{
+    if(e.type==='unavailable-id'&&tries<4){peer.destroy();return host(tries+1)}
+    if(!connected&&!conn){errMsg='No se pudo crear la sala ('+e.type+'). Intenta de nuevo.';reset()}
+  });
+  peer.on('disconnected',()=>{try{peer.reconnect()}catch(e){}});
+  peer.on('connection',c=>{
+    if(conn&&conn.open){c.on('open',()=>{c.send({t:'full'});setTimeout(()=>c.close(),300)});return}
+    attach(c);
+    c.on('open',()=>send({t:'state',S}));
+  });
+}
+function join(raw){
+  const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(c.length!==4){errMsg='Escribe el código de 4 caracteres.';return renderHome()}
+  if(typeof Peer==='undefined'){errMsg='No se pudo cargar el módulo de conexión. Revisa tu internet.';return renderHome()}
+  try{conn&&conn.close()}catch(e){} try{peer&&peer.destroy()}catch(e){}
+  errMsg=''; code=c; me='B'; isHost=false;
+  renderMsg('Conectando a la sala '+c+'…');
+  peer=new Peer();
+  peer.on('open',()=>{
+    attach(peer.connect(PREFIX+c,{reliable:true}));
+    setTimeout(()=>{if(!connected&&!S){errMsg='No se encontró la sala '+c+'. Revisa el código o que tu rival siga en la pantalla de espera.';reset()}},12000);
+  });
+  peer.on('error',e=>{
+    if(e.type==='peer-unavailable'){if(S){connected=false;return render()}errMsg='No existe la sala '+c+'. Revisa el código.';return reset()}
+    if(!connected&&!S){errMsg='No se pudo conectar ('+e.type+').';reset()}
+  });
+}
+function attach(c){
+  conn=c;
+  c.on('open',()=>{connected=true;try{history.replaceState(null,'',location.pathname+'?sala='+code)}catch(e){} if(S)render()});
+  c.on('data',onData);
+  c.on('close',()=>{if(conn===c){connected=false;render()}});
+  c.on('error',()=>{});
+}
+function send(m){try{conn&&conn.open&&conn.send(m)}catch(e){}}
+function onData(m){
+  if(!m||typeof m!=='object')return;
+  if(m.t==='full'){errMsg='Esa sala ya tiene dos jugadores.';return reset()}
+  if(!isHost&&m.t==='state'&&m.S){S=m.S;render()}
+  if(isHost&&m.t==='act')act('B',m.a);
+}
+function reset(){
+  try{conn&&conn.close()}catch(e){} try{peer&&peer.destroy()}catch(e){}
+  peer=conn=null;me=null;code=null;S=null;connected=false;isHost=false;lastKey=null;
+  try{history.replaceState(null,'',location.pathname)}catch(e){}
+  renderHome();
+}
+
+/* ================= Pantallas ================= */
 function renderHome(){
   view.innerHTML=`<div class="stack">
     <section class="panel">
-      <h2>Nueva partida</h2>
-      <p class="msg">Crea una sala y mándale el código o el enlace a tu rival. Tú juegas con rojas.</p>
-      <button id="create">Crear partida</button>
+      <h2>Nueva sala</h2>
+      <p class="msg">Crea una sala y mándale el enlace a tu rival. Ya conectados, eligen el juego.</p>
+      <button id="create">Crear sala</button>
     </section>
     <section class="panel">
       <h2>Unirme con código</h2>
@@ -123,6 +521,10 @@ function renderHome(){
       </div>
       ${errMsg?`<p class="err">${esc(errMsg)}</p>`:''}
     </section>
+    <section class="panel">
+      <div class="label">Juegos disponibles</div>
+      <p class="msg">${Object.values(GAMES).map(g=>g.ic+' '+g.name).join(' · ')}</p>
+    </section>
   </div>`;
   const ci=document.getElementById('codeIn');
   ci.addEventListener('keydown',e=>{if(e.key==='Enter')join(ci.value)});
@@ -131,97 +533,23 @@ function renderHome(){
 }
 function renderMsg(t){view.innerHTML=`<section class="panel"><p class="msg">${esc(t)}</p><button class="ghost" id="cancel">Cancelar</button></section>`;document.getElementById('cancel').onclick=reset}
 
-function reset(){
-  try{conn&&conn.close()}catch(e){} try{peer&&peer.destroy()}catch(e){}
-  peer=conn=null;myColor=null;code=null;g=null;connected=false;lastAnimKey=null;
-  try{history.replaceState(null,'',location.pathname)}catch(e){}
-  renderHome();
-}
-
-/* ---------- Conexión ---------- */
-function host(tries=0){
-  if(typeof Peer==='undefined'){errMsg='No se pudo cargar el módulo de conexión. Revisa tu internet.';return renderHome()}
-  errMsg=''; code=newCode(); myColor='r';
-  renderMsg('Creando sala…');
-  peer=new Peer(PREFIX+code);
-  peer.on('open',()=>renderWaiting());
-  peer.on('error',e=>{
-    if(e.type==='unavailable-id'&&tries<4){peer.destroy();return host(tries+1)}
-    if(!connected){errMsg='No se pudo crear la sala ('+e.type+'). Intenta de nuevo.';reset()}
-  });
-  peer.on('connection',c=>{
-    if(conn&&conn.open){c.on('open',()=>{c.send({t:'full'});setTimeout(()=>c.close(),300)});return}
-    attach(c);
-    c.on('open',()=>{
-      if(!g)g=freshGame('r');
-      send({t:'state',g});
-    });
-  });
-}
-function join(raw){
-  const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-  if(c.length!==4){errMsg='Escribe el código de 4 caracteres.';return renderHome()}
-  if(typeof Peer==='undefined'){errMsg='No se pudo cargar el módulo de conexión. Revisa tu internet.';return renderHome()}
-  errMsg=''; code=c; myColor='y';
-  renderMsg('Conectando a la sala '+c+'…');
-  peer=new Peer();
-  peer.on('open',()=>{
-    const cn=peer.connect(PREFIX+c,{reliable:true});
-    attach(cn);
-    setTimeout(()=>{if(!connected){errMsg='No se encontró la sala '+c+'. Revisa el código o que tu rival siga en la pantalla de espera.';reset()}},12000);
-  });
-  peer.on('error',e=>{
-    if(e.type==='peer-unavailable'){errMsg='No existe la sala '+c+'. Revisa el código.';return reset()}
-    if(!connected){errMsg='No se pudo conectar ('+e.type+').';reset()}
-  });
-}
-function attach(c){
-  conn=c;
-  c.on('open',()=>{connected=true; try{history.replaceState(null,'',location.pathname+'?sala='+code)}catch(e){} if(g)renderGame()});
-  c.on('data',onData);
-  c.on('close',()=>{if(connected){connected=false;if(g)renderGame()}});
-  c.on('error',()=>{});
-}
-function send(m){try{conn&&conn.open&&conn.send(m)}catch(e){}}
-function onData(m){
-  if(!m||typeof m!=='object')return;
-  if(m.t==='full'){errMsg='Esa sala ya tiene dos jugadores.';return reset()}
-  if(m.t==='state'&&m.g){g=m.g;renderGame()}
-  if(m.t==='move'&&g)applyMove(m.c,m.p,false);
-  if(m.t==='rematch'&&g&&g.status==='done'&&(m.s==='r'||m.s==='y')){g=freshGame(m.s,g.score);renderGame()}
-}
-
-/* ---------- Juego ---------- */
-function applyMove(c,p,local){
-  if(!g||g.status!=='playing'||g.turn!==p)return;
-  const r=dropRow(g.board,c); if(r<0)return;
-  const i=r*COLS+c;
-  g.board=g.board.slice(0,i)+p+g.board.slice(i+1);
-  g.last=i; g.moves++; g.turn=p==='r'?'y':'r';
-  const line=winLine(g.board);
-  if(line){g.status='done';g.winner=p;g.winLine=line;g.score={...g.score,[p]:g.score[p]+1}}
-  else if(!g.board.includes('.')){g.status='done';g.winner='draw'}
-  if(local)send({t:'move',c,p});
-  renderGame();
-}
-
 function renderWaiting(){
   const url=shareUrl(code);
   view.innerHTML=`<section class="panel">
-    <div class="label" style="text-align:center">Código de la sala</div>
+    <div class="label center">Código de la sala</div>
     <div class="code">${esc(code)}</div>
-    <p class="msg" style="text-align:center">Tu rival abre esta página y escribe el código, o abre directamente este enlace:</p>
+    <p class="msg center">Tu rival abre este enlace y entra directo:</p>
     <div class="link" id="lnk">${esc(url)}</div>
     <div class="row">
       <button id="share">Enviar enlace</button>
       <button class="ghost" id="copy">Copiar</button>
     </div>
-    <p class="msg" style="text-align:center">Esperando a tu rival… No cierres esta pantalla.</p>
+    <p class="msg center">Esperando a tu rival… No cierres esta pantalla.</p>
     <button class="ghost" id="cancel">Cancelar</button>
   </section>`;
   document.getElementById('cancel').onclick=reset;
   const share=document.getElementById('share');
-  if(navigator.share)share.onclick=()=>navigator.share({title:'Conecta 4',text:'¡Juguemos Conecta 4! Código: '+code,url}).catch(()=>{});
+  if(navigator.share)share.onclick=()=>navigator.share({title:'Sala de Juegos',text:'¡Vamos a jugar! Sala '+code,url}).catch(()=>{});
   else share.hidden=true;
   const copy=document.getElementById('copy');
   copy.onclick=()=>navigator.clipboard.writeText(url).then(()=>{copy.textContent='Copiado ✓'},()=>{
@@ -229,51 +557,355 @@ function renderWaiting(){
   });
 }
 
-function renderGame(){
-  const myTurn=g.status==='playing'&&g.turn===myColor&&connected;
-  const colorName=p=>p==='r'?'rojas':'amarillas';
-  let status;
-  if(g.status==='done') status=g.winner==='draw'?'¡Empate!':(g.winner===myColor?'¡Ganaste! 🎉':'Ganó tu rival');
-  else if(!connected) status='Rival desconectado';
-  else status=myTurn?'Te toca':'Turno de tu rival';
+function footer(){
+  return `<p class="foot"><span class="conn${connected?'':' off'}"></span>${connected?'Conectados':'Rival desconectado'} · Sala ${esc(code)}</p>
+  ${!connected&&!isHost?'<button class="ghost" id="reconn">Reconectar</button>':''}`;
+}
+function wireFooter(){
+  const r=document.getElementById('reconn'); if(r)r.onclick=()=>join(code);
+}
 
-  const b=g.board, win=new Set(g.winLine||[]);
-  const key=g.moves+':'+g.last, animate=g.last!=null&&lastAnimKey!==null&&lastAnimKey!==key;
+function render(){
+  if(!S){return isHost?renderWaiting():null}
+  if(isHost&&!connected&&S.v===0)return renderWaiting();
+  if(!S.game)return renderMenu();
+  const k=S.game+':'+S.v; if(selKey!==null&&selKey.split(':')[0]!==S.game)navalDraft=null;
+  if(selKey!==k){sel=null;selKey=k}
+  ({c4:renderC4,gato:renderGato,ppt:renderPpt,ahor:renderAhor,naval:renderNaval,damas:renderDamas,chinas:renderChinas,cajas:renderCajas})[S.game]();
+}
+
+function renderMenu(){
+  view.innerHTML=`<div class="stack">
+    <h2>¿A qué jugamos?</h2>
+    <div class="games">${Object.entries(GAMES).map(([k,g])=>{
+      const sc=S.score[k];
+      return `<button class="game" data-g="${k}" ${connected?'':'disabled'}><span class="ic">${g.ic}</span><b>${g.name}</b>
+      <small>${g.desc}</small><small>Tú ${sc[me]} – ${sc[other(me)]} Rival</small></button>`}).join('')}</div>
+    <p class="msg center">Cualquiera de los dos puede elegir.</p>
+    <button class="ghost" id="leave">Salir de la sala</button>
+    ${footer()}
+  </div>`;
+  view.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>doAct({k:'pick',game:b.dataset.g}));
+  document.getElementById('leave').onclick=reset;
+  wireFooter();
+}
+
+function head(title){
+  const sc=S.score[S.game];
+  return `<div class="ghead"><h2>${title}</h2><button class="ghost" id="menu">☰ Juegos</button></div>
+  <p class="msg center">Marcador: Tú ${sc[me]} – ${sc[other(me)]} Rival</p>`;
+}
+function tail(G){
+  return `<div class="row">${G.status==='done'&&connected?'<button id="again">Otra vez</button>':''}</div>${footer()}`;
+}
+function wireCommon(){
+  document.getElementById('menu').onclick=()=>doAct({k:'menu'});
+  const a=document.getElementById('again'); if(a)a.onclick=()=>doAct({k:'again'});
+  wireFooter();
+}
+function resultText(G){
+  if(G.winner==='draw')return '¡Empate!';
+  return G.winner===me?'¡Ganaste! 🎉':'Ganó tu rival';
+}
+function turnText(G){
+  if(G.status==='done')return resultText(G);
+  if(!connected)return 'Esperando a tu rival…';
+  return G.turn===me?'Te toca':'Turno de tu rival';
+}
+function playersBar(G,tokA,tokB){
+  const lab=p=>p===me?'Tú':'Rival';
+  return `<div class="players">
+    <div class="pl ${G.status==='playing'&&G.turn==='A'?'active':''}"><span class="tok">${tokA}</span><div class="n">${lab('A')}<small>${me==='A'?'Tus fichas':'Sus fichas'}</small></div></div>
+    <div class="pl ${G.status==='playing'&&G.turn==='B'?'active':''}"><span class="tok">${tokB}</span><div class="n">${lab('B')}<small>${me==='B'?'Tus fichas':'Sus fichas'}</small></div></div>
+  </div>`;
+}
+
+/* ---- Conecta 4 ---- */
+function renderC4(){
+  const G=S.g.c4, myTurn=G.status==='playing'&&G.turn===me&&connected;
+  const win=new Set(G.winLine||[]);
+  const key='c4:'+G.moves+':'+G.last, animate=G.last!=null&&lastKey!==null&&lastKey!==key&&lastKey.startsWith('c4:');
   let cols='';
-  for(let c=0;c<COLS;c++){
-    const can=myTurn&&dropRow(b,c)>=0;
-    let cells='';
-    for(let r=0;r<ROWS;r++){
-      const i=r*COLS+c,p=b[i];
-      cells+=`<div class="cell"><div class="hole">${p==='.'?'':`<span class="disc ${p}${win.has(i)?' win':''}${animate&&i===g.last?' drop':''}" style="--from:-${(r+1)*118}%"></span>`}</div></div>`;
+  for(let c=0;c<7;c++){
+    const can=myTurn&&dropRow(G.board,c)>=0; let cells='';
+    for(let r=0;r<6;r++){
+      const i=r*7+c,p=G.board[i];
+      cells+=`<div class="cell"><div class="hole">${p==='.'?'':`<span class="disc ${p}${win.has(i)?' win':''}${animate&&i===G.last?' drop':''}" style="--from:-${(r+1)*118}%"></span>`}</div></div>`;
     }
     cols+=`<div class="col${can?' can':''}" data-c="${c}" role="button" tabindex="${can?0:-1}" aria-label="Columna ${c+1}">${cells}</div>`;
   }
-  lastAnimKey=key;
-  const meLabel=p=>p===myColor?'Tú':'Rival';
-  view.innerHTML=`<div class="stack">
-    <div class="players">
-      <div class="pl ${g.status==='playing'&&g.turn==='r'?'active':''}"><span class="disc r"></span><div class="n">${meLabel('r')}<small>Rojas · ${g.score.r}</small></div></div>
-      <div class="pl ${g.status==='playing'&&g.turn==='y'?'active':''}"><span class="disc y"></span><div class="n">${meLabel('y')}<small>Amarillas · ${g.score.y}</small></div></div>
-    </div>
-    <p class="status" aria-live="polite">${esc(status)}</p>
-    <div class="board">${cols}</div>
-    <div class="row">
-      ${g.status==='done'&&connected?'<button id="again">Revancha</button>':''}
-      <button class="ghost" id="leave">Salir</button>
-    </div>
-    <p class="foot"><span class="conn${connected?'':' off'}"></span>Sala ${esc(code)} · Juegas con ${colorName(myColor)}</p>
-  </div>`;
+  lastKey=key;
+  view.innerHTML=`<div class="stack">${head('🔴 Conecta 4')}
+    ${playersBar(G,'<span class="disc A" style="width:22px;height:22px"></span>','<span class="disc B" style="width:22px;height:22px"></span>')}
+    <p class="status" aria-live="polite">${turnText(G)}</p>
+    <div class="board">${cols}</div>${tail(G)}</div>`;
   view.querySelectorAll('.col.can').forEach(el=>{
-    el.onclick=()=>applyMove(+el.dataset.c,myColor,true);
-    el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();applyMove(+el.dataset.c,myColor,true)}};
+    el.onclick=()=>doAct({k:'c4',c:+el.dataset.c});
+    el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();doAct({k:'c4',c:+el.dataset.c})}};
   });
-  document.getElementById('leave').onclick=reset;
-  const again=document.getElementById('again');
-  if(again)again.onclick=()=>{const s=g.starter==='r'?'y':'r';g=freshGame(s,g.score);send({t:'rematch',s});renderGame()};
+  wireCommon();
 }
 
-/* ---------- Arranque ---------- */
+/* ---- Gato ---- */
+function renderGato(){
+  const G=S.g.gato, myTurn=G.status==='playing'&&G.turn===me&&connected;
+  const win=new Set(G.winLine||[]), sym={A:'X',B:'O'};
+  const key='gato:'+G.moves+':'+G.last, animate=lastKey!==null&&lastKey!==key&&lastKey.startsWith('gato:');
+  lastKey=key;
+  const cells=[...G.board].map((p,i)=>`<button class="gcell ${p!=='.'?p:''}${win.has(i)?' win':''}${animate&&i===G.last?' pop':''}" data-i="${i}"
+    ${myTurn&&p==='.'?'':'disabled'} aria-label="Casilla ${i+1}">${p==='.'?'':sym[p]}</button>`).join('');
+  view.innerHTML=`<div class="stack">${head('❌ Gato')}
+    ${playersBar(G,'<span style="color:var(--red)">X</span>','<span style="color:var(--yellow)">O</span>')}
+    <p class="status" aria-live="polite">${turnText(G)}</p>
+    <div class="gato">${cells}</div>${tail(G)}</div>`;
+  view.querySelectorAll('.gcell:not(:disabled)').forEach(b=>b.onclick=()=>doAct({k:'gato',i:+b.dataset.i}));
+  wireCommon();
+}
+
+/* ---- Piedra, papel o tijera ---- */
+const PPT_IC={piedra:'🪨',papel:'📄',tijera:'✂️'};
+function renderPpt(){
+  const G=S.g.ppt, mine=G.pick[me], his=G.pick[other(me)];
+  const last=G.rounds[G.rounds.length-1];
+  lastKey='ppt';
+  let status;
+  if(G.status==='done')status=G.winner===me?'¡Ganaste la serie! 🎉':'Tu rival ganó la serie';
+  else if(!connected)status='Esperando a tu rival…';
+  else if(!mine)status='Elige en secreto';
+  else status=his?'…':'Esperando que tu rival elija…';
+  let lastHtml='';
+  if(last){
+    const w=last.w==='draw'?'Empate':(last.w===me?'Ganaste la ronda':'Tu rival ganó la ronda');
+    lastHtml=`<section class="panel"><div class="label center">Ronda ${G.rounds.length}</div>
+      <div class="reveal"><div><div class="big">${PPT_IC[last[me]]}</div><small>Tú</small></div><b>vs</b><div><div class="big">${PPT_IC[last[other(me)]]}</div><small>Rival</small></div></div>
+      <p class="status">${w}</p></section>`;
+  }
+  const hist=G.rounds.map(r=>`<i class="${r.w==='draw'?'':(r.w===me?'w':'l')}">${r.w==='draw'?'=':(r.w===me?'G':'P')}</i>`).join('');
+  view.innerHTML=`<div class="stack">${head('✂️ Piedra, papel o tijera')}
+    <p class="status">Tú ${G.wins[me]} – ${G.wins[other(me)]} Rival <small class="msg" style="display:block;font-size:13px">Gana quien llegue a 3</small></p>
+    ${lastHtml}
+    <p class="status" aria-live="polite">${status}</p>
+    ${G.status==='playing'?`<div class="ppt">${Object.keys(PPT_IC).map(v=>`<button data-v="${v}" class="${mine===v?'sel':''}" ${mine||!connected?'disabled':''}><span>${PPT_IC[v]}</span>${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div>`:''}
+    ${hist?`<div class="hist">${hist}</div>`:''}
+    ${tail(G)}</div>`;
+  view.querySelectorAll('.ppt button:not(:disabled)').forEach(b=>b.onclick=()=>doAct({k:'ppt',v:b.dataset.v}));
+  wireCommon();
+}
+
+/* ---- Ahorcado ---- */
+function hangSvg(m,lost){
+  const parts=[
+    '<circle class="p" cx="100" cy="52" r="14"/>',
+    '<line class="p" x1="100" y1="66" x2="100" y2="112"/>',
+    '<line class="p" x1="100" y1="80" x2="80" y2="98"/>',
+    '<line class="p" x1="100" y1="80" x2="120" y2="98"/>',
+    '<line class="p" x1="100" y1="112" x2="84" y2="138"/>',
+    '<line class="p" x1="100" y1="112" x2="116" y2="138"/>'];
+  return `<svg viewBox="0 0 160 170" role="img" aria-label="${m} de 6 errores">
+    <line class="p" x1="20" y1="160" x2="140" y2="160"/><line class="p" x1="45" y1="160" x2="45" y2="12"/>
+    <line class="p" x1="45" y1="12" x2="100" y2="12"/><line class="p" x1="100" y1="12" x2="100" y2="38"/>
+    ${parts.slice(0,m).map(s=>lost?s.replace('class="p"','class="p miss"'):s).join('')}</svg>`;
+}
+function renderAhor(){
+  const G=S.g.ahor, iSet=G.setter===me;
+  lastKey='ahor';
+  let body='';
+  if(G.phase==='setting'){
+    body=iSet?`<section class="panel">
+        <h2>Escribe una palabra secreta</h2>
+        <p class="msg">Tu rival tendrá que adivinarla letra por letra. Mínimo 3 letras, sin números.</p>
+        <input id="wordIn" type="password" maxlength="20" autocomplete="off" autocapitalize="characters" placeholder="PALABRA" aria-label="Palabra secreta">
+        <p class="err" id="wErr" hidden></p>
+        <button id="setWord" ${connected?'':'disabled'}>Listo</button></section>`
+      :`<section class="panel"><p class="status">Tu rival está escribiendo una palabra secreta…</p><p class="msg center">Tú vas a adivinar. Tienes 6 errores.</p></section>`;
+  }else{
+    const lost=G.status==='done'&&G.winner===G.setter;
+    const showAll=G.status==='done'||iSet;
+    const word=[...G.word].map(ch=>ch===' '?'<span class="sp"></span>':
+      `<span class="${lost&&!G.guessed.includes(ch)?'lost':''}">${G.guessed.includes(ch)||showAll?ch:''}</span>`).join('');
+    let status;
+    if(G.status==='done')status=resultText(G);
+    else status=iSet?'Tu rival está adivinando':'Adivina la palabra';
+    const canGuess=!iSet&&G.status==='playing'&&connected;
+    const keys='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('').map(l=>{
+      const used=G.guessed.includes(l), hit=used&&G.word.includes(l);
+      return `<button data-l="${l}" class="${used?(hit?'hit':'no'):''}" ${canGuess&&!used?'':'disabled'}>${l}</button>`}).join('');
+    body=`<div class="hang">${hangSvg(G.misses,lost)}</div>
+      <p class="msg center">Errores: ${G.misses} de 6</p>
+      <div class="word" aria-label="Palabra">${word}</div>
+      <p class="status" aria-live="polite">${status}</p>
+      <div class="keys">${keys}</div>`;
+  }
+  view.innerHTML=`<div class="stack">${head('🔤 Ahorcado')}
+    <p class="msg center">${iSet?'Tú pones la palabra':'Tú adivinas'} · En la siguiente se cambian los papeles</p>
+    ${body}${tail(G)}</div>`;
+  const sw=document.getElementById('setWord');
+  if(sw){
+    const wi=document.getElementById('wordIn'), we=document.getElementById('wErr');
+    const go=()=>{const w=cleanWord(wi.value);
+      if(w.replace(/ /g,'').length<3){we.textContent='Escribe al menos 3 letras.';we.hidden=false;return}
+      doAct({k:'word',w})};
+    sw.onclick=go; wi.addEventListener('keydown',e=>{if(e.key==='Enter')go()});
+  }
+  view.querySelectorAll('.keys button:not(:disabled)').forEach(b=>b.onclick=()=>doAct({k:'letter',l:b.dataset.l}));
+  wireCommon();
+}
+
+/* ---- Batalla naval ---- */
+function renderNaval(){
+  const G=S.g.naval, op=other(me);
+  let body='';
+  if(G.phase==='placing'){
+    if(!G.ready[me]){
+      if(!navalDraft)navalDraft=randomFleet();
+      const cells=new Set(navalDraft.flat());
+      body=`<section class="panel"><h2>Acomoda tu flota</h2>
+        <p class="msg">4 barcos: uno de 4, dos de 3 y uno de 2. Toca “Otra posición” hasta que te guste.</p>
+        <div class="bn">${Array.from({length:64},(_,i)=>`<div class="sq${cells.has(i)?' ship':''}"></div>`).join('')}</div>
+        <div class="row"><button class="ghost" id="shuffle">🔀 Otra posición</button><button id="ready" ${connected?'':'disabled'}>¡Listo!</button></div></section>`;
+    }else{
+      body=`<section class="panel"><p class="status">Esperando a que tu rival acomode sus barcos…</p></section>`;
+    }
+  }else{
+    const myTurn=G.status==='playing'&&G.turn===me&&connected;
+    const myShots=G.shots[me], hisShots=G.shots[op];
+    const enemySunk=new Set(), mySunk=new Set();
+    let enemySunkN=0,mySunkN=0;
+    G.fleet[op].forEach(s=>{if(shipSunk(s,myShots)){enemySunkN++;s.forEach(i=>enemySunk.add(i))}});
+    G.fleet[me].forEach(s=>{if(shipSunk(s,hisShots)){mySunkN++;s.forEach(i=>mySunk.add(i))}});
+    const done=G.status==='done';
+    const enemyShips=new Set(done?G.fleet[op].flat():[]);
+    const attack=Array.from({length:64},(_,i)=>{
+      const s=myShots[i]; let cls='sq';
+      if(enemySunk.has(i))cls+=' sunk'; else if(s==='x')cls+=' hit'; else if(s==='o')cls+=' miss'; else if(enemyShips.has(i))cls+=' ship';
+      if(G.last[me]===i)cls+=' lastshot';
+      const can=myTurn&&s==='.';
+      return can?`<button class="${cls} can" data-i="${i}" aria-label="Disparar a ${'ABCDEFGH'[i>>3]}${(i&7)+1}"></button>`:`<div class="${cls}">${s==='x'?'💥':''}</div>`;
+    }).join('');
+    const mine=new Set(G.fleet[me].flat());
+    const defend=Array.from({length:64},(_,i)=>{
+      const s=hisShots[i]; let cls='sq'+(mine.has(i)?' ship':'');
+      if(mySunk.has(i))cls+=' sunk'; else if(s==='x')cls+=' hit'; else if(s==='o')cls+=' miss';
+      if(G.last[op]===i)cls+=' lastshot';
+      return `<div class="${cls}"></div>`}).join('');
+    let status;
+    if(done)status=resultText(G);
+    else if(!connected)status='Esperando a tu rival…';
+    else status=myTurn?'Te toca disparar':'Tu rival está disparando…';
+    body=`<p class="status" aria-live="polite">${status}</p>
+      <p class="msg center">Si le atinas, vuelves a tirar.</p>
+      <section class="panel"><div class="fleetinfo"><b>Mar del rival</b><span>Hundidos: ${enemySunkN} de ${NAVAL_FLEET.length}</span></div>
+        <div class="bn">${attack}</div></section>
+      <section class="panel"><div class="fleetinfo"><b>Tu flota</b><span>Te hundieron: ${mySunkN} de ${NAVAL_FLEET.length}</span></div>
+        <div class="bn small">${defend}</div></section>`;
+  }
+  view.innerHTML=`<div class="stack">${head('🚢 Batalla naval')}${body}${tail(G)}</div>`;
+  const sh=document.getElementById('shuffle'); if(sh)sh.onclick=()=>{navalDraft=randomFleet();render()};
+  const rd=document.getElementById('ready'); if(rd)rd.onclick=()=>{const f=navalDraft;navalDraft=null;doAct({k:'fleet',ships:f})};
+  view.querySelectorAll('.bn .sq.can').forEach(b=>b.onclick=()=>doAct({k:'shot',i:+b.dataset.i}));
+  if(G.status==='done')navalDraft=null;
+  wireCommon();
+}
+
+/* ---- Damas ---- */
+function renderDamas(){
+  const G=S.g.damas, myTurn=G.status==='playing'&&G.turn===me&&connected;
+  const moves=myTurn?dmMoves(G,me):[];
+  if(G.chain!=null&&myTurn)sel=G.chain;
+  const movable=new Set(moves.map(m=>m.from));
+  const targets=new Set(moves.filter(m=>m.from===sel).map(m=>m.to));
+  const last=new Set(G.last||[]);
+  const flip=me==='B';
+  let sq='';
+  for(let k=0;k<64;k++){
+    const i=flip?63-k:k, ch=G.board[i], o=dmOwner(ch), dk=((i>>3)+(i&7))%2===1;
+    let cls='sq'+(dk?' dk':'');
+    if(movable.has(i))cls+=' mov'; if(sel===i)cls+=' sel'; if(targets.has(i))cls+=' tgt'; if(last.has(i))cls+=' last';
+    const pc=o?`<span class="pc ${o}">${ch===ch.toUpperCase()?'♛':''}</span>`:'';
+    sq+=(movable.has(i)||targets.has(i))?`<button class="${cls}" data-i="${i}">${pc}</button>`:`<div class="${cls}">${pc}</div>`;
+  }
+  const count=p=>[...G.board].filter(ch=>dmOwner(ch)===p).length;
+  let status=turnText(G);
+  if(myTurn&&moves.some(m=>m.cap!=null))status=G.chain!=null?'¡Sigue comiendo!':'Te toca: tienes que comer';
+  view.innerHTML=`<div class="stack">${head('⚫ Damas')}
+    ${playersBar(G,'<span class="disc A" style="width:22px;height:22px"></span>','<span class="disc B" style="width:22px;height:22px"></span>')}
+    <p class="status" aria-live="polite">${status}</p>
+    <div class="dm">${sq}</div>
+    <p class="msg center">Fichas: tú ${count(me)} · rival ${count(other(me))}. Comer es obligatorio; al llegar al fondo te coronas ♛.</p>
+    ${tail(G)}</div>`;
+  view.querySelectorAll('.dm button').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i;
+    if(targets.has(i))doAct({k:'dm',from:sel,to:i});
+    else if(G.chain==null){sel=sel===i?null:i;render()}
+  });
+  wireCommon();
+}
+
+/* ---- Damas chinas ---- */
+function renderChinas(){
+  const G=S.g.chinas, myTurn=G.status==='playing'&&G.turn===me&&connected;
+  const flip=me==='B', H=Math.sqrt(3);
+  const reach=myTurn&&sel!=null&&G.board[sel]===me?ccReach(G.board,sel):new Set();
+  const last=G.last||[];
+  const pos=i=>{const c=CC.cells[i];const x=flip?24-c.x:c.x,r=flip?16-c.r:c.r;return [x+1.2,r*H+1.2]};
+  let holes='',pcs='';
+  CC.cells.forEach((c,i)=>{
+    const [x,y]=pos(i), ch=G.board[i];
+    const goal=CC.goal.A.includes(i)?' cc-goalA':CC.goal.B.includes(i)?' cc-goalB':'';
+    holes+=`<circle class="cc-hole${goal}" cx="${x}" cy="${y}" r=".78"/>`;
+    if(ch!=='.'){
+      const cls='cc-'+ch+(myTurn&&ch===me?' cc-mov':'')+(sel===i?' cc-sel':'')+(last[1]===i?' cc-last':'');
+      pcs+=`<circle class="${cls}" cx="${x}" cy="${y}" r=".7" data-i="${i}"/>`;
+    }else if(reach.has(i)){
+      pcs+=`<circle class="cc-tgt" cx="${x}" cy="${y}" r=".55" data-t="${i}"/>`;
+    }else if(last[0]===i){
+      pcs+=`<circle class="cc-last" fill="none" cx="${x}" cy="${y}" r=".5"/>`;
+    }
+  });
+  const inGoal=p=>CC.goal[p].filter(i=>G.board[i]===p).length;
+  view.innerHTML=`<div class="stack">${head('⭐ Damas chinas')}
+    ${playersBar(G,'<span class="disc A" style="width:22px;height:22px"></span>','<span class="disc B" style="width:22px;height:22px"></span>')}
+    <p class="status" aria-live="polite">${turnText(G)}</p>
+    <div class="svgbox"><svg viewBox="0 0 26.4 ${16*H+2.4}">${holes}${pcs}</svg></div>
+    <p class="msg center">Lleva tus 10 fichas a la punta de enfrente. Puedes saltar fichas encadenando saltos. En tu meta: tú ${inGoal(me)}/10 · rival ${inGoal(other(me))}/10</p>
+    ${tail(G)}</div>`;
+  view.querySelectorAll('svg [data-i]').forEach(el=>el.addEventListener('click',()=>{
+    const i=+el.dataset.i; if(!myTurn||G.board[i]!==me)return; sel=sel===i?null:i; render();
+  }));
+  view.querySelectorAll('svg [data-t]').forEach(el=>el.addEventListener('click',()=>doAct({k:'cc',from:sel,to:+el.dataset.t})));
+  wireCommon();
+}
+
+/* ---- Puntos y cajas ---- */
+function renderCajas(){
+  const G=S.g.cajas, myTurn=G.status==='playing'&&G.turn===me&&connected;
+  const P=i=>10+20*i;
+  let boxes='',lines='',dots='';
+  for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+    const o=G.box[r*4+c];
+    if(o!=='.')boxes+=`<rect class="db-box${o}" x="${P(c)+1}" y="${P(r)+1}" width="18" height="18" rx="2"/><text class="db-lbl" x="${P(c)+10}" y="${P(r)+10}">${o===me?'Tú':'R'}</text>`;
+  }
+  const line=(t,i,x1,y1,x2,y2)=>{
+    const o=G[t][i];
+    if(o!=='.')return `<line class="db-line db-${o}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"${G.last===t+i?' stroke-dasharray="none" style="filter:drop-shadow(0 0 1.5px currentColor)"':''}/>`;
+    if(!myTurn)return '';
+    return `<line class="db-hit" data-t="${t}" data-i="${i}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><line class="db-ghost" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+  };
+  for(let r=0;r<5;r++)for(let c=0;c<4;c++)lines+=line('h',r*4+c,P(c),P(r),P(c+1),P(r));
+  for(let r=0;r<4;r++)for(let c=0;c<5;c++)lines+=line('v',r*5+c,P(c),P(r),P(c),P(r+1));
+  for(let r=0;r<5;r++)for(let c=0;c<5;c++)dots+=`<circle class="db-dot" cx="${P(c)}" cy="${P(r)}" r="1.8"/>`;
+  view.innerHTML=`<div class="stack">${head('🔲 Puntos y cajas')}
+    ${playersBar(G,'<span class="disc A" style="width:22px;height:22px"></span>','<span class="disc B" style="width:22px;height:22px"></span>')}
+    <p class="status">Cuadros: tú ${G.pts[me]} – ${G.pts[other(me)]} rival</p>
+    <p class="status" aria-live="polite">${turnText(G)}</p>
+    <div class="svgbox"><svg viewBox="0 0 100 100">${boxes}${lines}${dots}</svg></div>
+    <p class="msg center">Toca entre dos puntos para trazar una línea. Si cierras un cuadro es tuyo y vuelves a tirar.</p>
+    ${tail(G)}</div>`;
+  view.querySelectorAll('.db-hit').forEach(el=>el.addEventListener('click',()=>doAct({k:'line',t:el.dataset.t,i:+el.dataset.i})));
+  wireCommon();
+}
+
+/* ================= Arranque ================= */
 const sala=new URLSearchParams(location.search).get('sala');
 if(sala&&/^[A-Za-z0-9]{4}$/.test(sala))join(sala); else renderHome();
 </script>
