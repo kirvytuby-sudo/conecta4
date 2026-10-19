@@ -276,6 +276,8 @@ button.v2{background:#a2387a}
 .vbtn{min-height:72px;font:800 22px var(--display)}
 .vbtn.v{background:#7b3199} .vbtn.r{background:#c8323d}
 .dice3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dice3.four{grid-template-columns:1fr 1fr}
+.vtip{margin:0;font-size:13px;opacity:.9}
 .dice3 div{background:rgba(255,255,255,.16);border-radius:12px;padding:12px 4px;display:flex;flex-direction:column;gap:4px}
 .dice3 span{font:800 18px/1.15 var(--display)}
 .dice3 small{font-size:11px;text-transform:uppercase;letter-spacing:.06em}
@@ -577,7 +579,13 @@ const VR={
 const DADO={
   suave:{acc:['Besar','Acariciar','Masajear','Soplar suave','Abrazar','Hacer cosquillas'],zona:['Cuello','Labios','Mejilla','Manos','Espalda','Orejas']},
   atrevido:{acc:['Besar','Lamer','Mordisquear','Acariciar','Masajear','Soplar suave'],zona:['Cuello','Labios','Orejas','Abdomen','Muslos','Donde tú elijas']},
+  intimo:{acc:['Chupar','Lamer','Besar','Acariciar','Mordisquear','Masajear con aceite','Frotar','Soplar','Tú eliges'],
+    zona:['Pecho','Entrepierna','Trasero','Cuello','Muslos','Abdomen','Labios','Espalda','Donde tú elijas'],
+    pos:['Misionero','Perrito','Vaquera','Vaquera invertida','Cucharita','De pie','Loto','Sentados','De lado','Tú eliges'],
+    t:[15,20,30,40,45,60]},
 };
+const DADO_LV={suave:'😊 Suave',atrevido:'🔥 Atrevido',intimo:'🔥🔥 Íntimo'};
+const fmtT=t=>t>=60?(t%60?Math.floor(t/60)+' min '+t%60+' s':t/60+' min'):t+' s';
 const DADO_T=[10,15,20,30,45,60];
 
 /* --- Serpientes y escaleras --- */
@@ -790,7 +798,7 @@ function act(p,a){
     }
     if(a.k==='droll'&&G.phase==='roll'&&G.won===p){
       const L=DADO[G.level], r=n=>Math.floor(Math.random()*n);
-      G.count++; G.roll={doer:G.doer,acc:L.acc[r(6)],zona:L.zona[r(6)],t:DADO_T[r(6)],n:G.count}; G.phase='show'; return commit();
+      const T=L.t||DADO_T; G.count++; G.roll={doer:G.doer,acc:L.acc[r(L.acc.length)],zona:L.zona[r(L.zona.length)],pos:L.pos?L.pos[r(L.pos.length)]:null,t:T[r(T.length)],n:G.count}; G.phase='show'; return commit();
     }
     if(a.k==='dnext'&&G.phase==='show'){
       Object.assign(G,{phase:'duel',duel:{A:null,B:null},show:{A:null,B:null},tie:null,won:null,doer:null,round:G.round+1});
@@ -1554,7 +1562,7 @@ function renderDado(){
   const G=S.g.dado, R=G.roll, op=other(me);
   const fresh=dadoSeen!==null&&R&&R.n!==dadoSeen&&G.phase==='show';
   dadoSeen=R?R.n:0;
-  const lv=l=>l==='suave'?'😊 Suave':'🔥 Atrevido';
+  const lv=l=>DADO_LV[l];
   const sum=p=>G.show[p]?G.show[p][0]+G.show[p][1]:null;
   // ¿qué dados hay que animar?
   const animP=[];
@@ -1584,13 +1592,14 @@ function renderDado(){
   let card='';
   if(G.phase==='show'&&R){
     card=`<section class="vcard reto"><div class="label">Ronda ${G.round} · ${R.doer===me?'tú se lo haces a tu pareja':'tu pareja te lo hace a ti'}</div>
-      <div class="dice3"><div><span>${esc(R.acc)}</span><small>Acción</small></div><div><span>${esc(R.zona)}</span><small>Zona</small></div><div><span>${R.t} s</span><small>Tiempo</small></div></div></section>
+      <div class="dice3${R.pos?' four':''}"><div><span>${esc(R.acc)}</span><small>Acción</small></div><div><span>${esc(R.zona)}</span><small>Zona</small></div>${R.pos?`<div><span>${esc(R.pos)}</span><small>Posición</small></div>`:''}<div><span>${fmtT(R.t)}</span><small>Tiempo</small></div></div>
+      ${R.pos?'<p class="vtip">Primero la acción en la zona, luego la posición durante el tiempo.</p>':''}</section>
       <button id="dnext" ${connected?'':'disabled'}>Siguiente ronda</button>`;
     status=R.doer===me?'¡A cumplir!':'¡Disfruta!';
   }
   view.innerHTML=`<div class="stack">${head('🎲 Dado picante')}
     ${G.phase==='duel'?`<section class="panel"><div class="label">Nivel</div>
-      <div class="opts two">${Object.keys(DADO).map(l=>`<button class="${G.level===l?'':'ghost'} dlvl" data-l="${l}" ${connected?'':'disabled'}>${lv(l)}</button>`).join('')}</div></section>`:''}
+      <div class="opts">${Object.keys(DADO).map(l=>`<button class="${G.level===l?'':'ghost'} dlvl" data-l="${l}" ${connected?'':'disabled'}>${lv(l)}</button>`).join('')}</div></section>`:''}
     ${G.phase!=='show'?`<section class="panel duel"><div class="label center">Ronda ${G.round} · Duelo de dados</div>${pair(me)}${pair(op)}
       <p class="msg center">Quien sume más decide quién se lo hace a quién.</p></section>`:''}
     <p class="status" aria-live="polite">${status}</p>
@@ -1611,7 +1620,7 @@ function renderDado(){
     dadoTimers.push(setTimeout(()=>{st.textContent=fin;bt.forEach(b=>b.style.visibility='')},1200));
   }
   if(fresh){
-    const L=DADO[G.level], pools=[L.acc,L.zona,DADO_T.map(t=>t+' s')], finals=[R.acc,R.zona,R.t+' s'];
+    const L=DADO[G.level], pools=[L.acc,L.zona,...(R.pos?[L.pos]:[]),(L.t||DADO_T).map(fmtT)], finals=[R.acc,R.zona,...(R.pos?[R.pos]:[]),fmtT(R.t)];
     const boxes=[...view.querySelectorAll('.dice3 > div')];
     const st=view.querySelector('.status'), btn=document.getElementById('dnext'), finalStatus=st?st.textContent:'';
     if(st)st.textContent='🎲 Rodando…'; if(btn)btn.disabled=true;
