@@ -691,7 +691,12 @@ const VR={
   },
 };
 const DADO={
-  atrevido:{acc:['Besar','Lamer','Mordisquear','Acariciar','Masajear','Soplar suave'],zona:['Cuello','Labios','Orejas','Abdomen','Muslos','Donde tú elijas']},
+  atrevido:{acc:['Besar','Lamer','Chupar','Acariciar','Frotar','Mordisquear','Desnudar'],
+    zona:['Entrepierna','Nalgas','Pezones','Cuello','Entrepierna','Donde tú elijas'],
+    zonaM:['Clítoris','Clítoris','Vulva','Vulva','Pezones','Pezones','Senos','Nalgas','Entrepierna','Cuello','Donde tú elijas'],
+    zonaH:['Pene','Pene','Pene','Testículos','Pezones','Nalgas','Entrepierna','Entrepierna','Cuello','Donde tú elijas'],
+    pos:['Misionero','Perrito','Vaquera','Cucharita','De pie','Sentados','Tú eliges'],
+    t:[15,20,30,40,45,60]},
   intimo:{acc:['Chupar','Lamer','Besar','Acariciar','Mordisquear','Masajear con aceite','Frotar','Soplar','Tú eliges'],
     zona:['Entrepierna','Nalgas','Pezones','Entrepierna','Nalgas','Donde tú elijas'],
     // zonas íntimas con más peso (las repetidas salen más seguido)
@@ -701,7 +706,7 @@ const DADO={
     t:[15,20,30,40,45,60]},
 };
 const DADO_LV={atrevido:'🔥 Atrevido',intimo:'🔥🔥 Íntimo'};
-const DADO_IC={Chupar:'👄',Lamer:'👅',Besar:'💋',Acariciar:'🤲','Masajear con aceite':'💧',Masajear:'💆',Frotar:'✋',Soplar:'🌬️','Soplar suave':'🌬️',Mordisquear:'😬','Tú eliges':'🎯',
+const DADO_IC={Desnudar:'👙',Chupar:'👄',Lamer:'👅',Besar:'💋',Acariciar:'🤲','Masajear con aceite':'💧',Masajear:'💆',Frotar:'✋',Soplar:'🌬️','Soplar suave':'🌬️',Mordisquear:'😬','Tú eliges':'🎯',
   Cuello:'🦢',Labios:'👄',Orejas:'👂',Abdomen:'⭐',Muslos:'🦵',Entrepierna:'🔥',Nalgas:'🍑',Pezones:'🍒',Senos:'🍒',Pecho:'💪',Clítoris:'💎',Vulva:'🌸',Pene:'🍆',Testículos:'🥜','Espalda baja':'〰️','Donde tú elijas':'🎯',
   Misionero:'🛏️',Perrito:'🐕',Vaquera:'🤠','Vaquera invertida':'🔄',Cucharita:'🥄','De pie':'🧍',Loto:'🪷',Sentados:'🪑','De lado':'↔️'};
 const dIc=w=>DADO_IC[w]||'🎲';
@@ -1741,7 +1746,7 @@ function renderDado(){
   const B=S.body||{};
   const bodyPanel=(!B[me]||!B[op])?`<section class="panel"><div class="label">Para que las zonas sean las correctas</div>
       ${B[me]?`<p class="msg">Tú: ${B[me]==='h'?'👨 Hombre':'👩 Mujer'} · Esperando a tu pareja…</p>`:`<p class="msg">¿Tú eres…?</p><div class="opts two"><button class="dbody" data-v="h">👨 Hombre</button><button class="dbody v2" data-v="m">👩 Mujer</button></div>`}</section>`:'';
-  const needBody=G.level==='intimo'&&(!B[me]||!B[op]);
+  const needBody=(!B[me]||!B[op]);
   if(needBody&&G.phase==='duel')body='';
   view.innerHTML=`<div class="stack">${head('🎲 Dado picante')}
     ${bodyPanel}
