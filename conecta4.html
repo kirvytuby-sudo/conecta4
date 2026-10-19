@@ -223,6 +223,20 @@ input.binput{letter-spacing:0;text-transform:none;text-align:left;font:500 17px 
 @keyframes dbounce{0%{transform:translateY(-40px) scale(1.15)}45%{transform:translateY(0) scale(1)}60%{transform:translateY(-10px)}75%{transform:translateY(0)}88%{transform:translateY(-3px)}100%{transform:translateY(0)}}
 .stok.slide{animation:tslide .55s ease-in-out}
 @keyframes tslide{from{transform:translate(var(--fx),var(--fy))}to{transform:translate(0,0)}}
+.duel{gap:10px}
+.duelrow{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:var(--bg);border:2px solid transparent}
+.duelrow.win{border-color:var(--ok)}
+.duelrow.wait .die3d{opacity:.35}
+.duelrow .who{flex:1;min-width:0}
+.duelrow .who small{display:block;color:var(--muted);font-size:14px;font-weight:700}
+.duelrow .pair{display:flex;gap:12px}
+.duelrow .die3d{width:52px;height:52px}
+.duelrow .face{padding:7px;border-radius:10px}
+.duelrow .face i{width:9px;height:9px}
+.duelrow .f1{transform:translateZ(26px)} .duelrow .f6{transform:rotateY(180deg) translateZ(26px)}
+.duelrow .f2{transform:rotateY(90deg) translateZ(26px)} .duelrow .f5{transform:rotateY(-90deg) translateZ(26px)}
+.duelrow .f3{transform:rotateX(90deg) translateZ(26px)} .duelrow .f4{transform:rotateX(-90deg) translateZ(26px)}
+button.v2{background:#a2387a}
 .dice3 div.rolling{animation:tumble .18s linear infinite}
 @keyframes tumble{0%{transform:rotateX(0)}50%{transform:rotateX(90deg) scale(.9)}100%{transform:rotateX(0)}}
 .dice3 div.landed{animation:land .35s ease-out}
@@ -344,7 +358,7 @@ function initGame(game,prev){
   if(game==='basta')return bastaRound(prev);
   if(game==='poker'){const G={stack:{A:1000,B:1000},dealer:starter,starter,hand:0,status:'playing',winner:null};pkNewHand(G);return G}
   if(game==='verdad')return {level:prev&&prev.level||'suave',turn:starter,starter,phase:'choose',card:null,used:{},count:0,status:'playing',winner:null};
-  if(game==='dado')return {level:prev&&prev.level||'suave',turn:starter,starter,roll:null,count:0,status:'playing',winner:null};
+  if(game==='dado')return {level:prev&&prev.level||'suave',phase:'duel',duel:{A:null,B:null},show:{A:null,B:null},rid:{A:0,B:0},tie:null,won:null,doer:null,roll:null,round:1,count:0,status:'playing',winner:null};
   if(game==='serp')return {pos:{A:0,B:0},turn:starter,starter,roll:null,lastMove:null,status:'playing',winner:null,moves:0};
   if(game==='cajas')return {h:'.'.repeat(20),v:'.'.repeat(20),box:'.'.repeat(16),pts:{A:0,B:0},turn:starter,starter,last:null,status:'playing',winner:null};
 }
@@ -760,10 +774,27 @@ function act(p,a){
   }
   if(S.game==='dado'){
     if(!S.adult||!S.adult.A||!S.adult.B)return;
-    if(a.k==='dlevel'&&DADO[a.level]){G.level=a.level;return commit()}
-    if(a.k==='droll'&&G.turn===p){
+    if(a.k==='dlevel'&&DADO[a.level]&&G.phase!=='show'){G.level=a.level;return commit()}
+    if(a.k==='dduel'&&G.phase==='duel'&&!G.duel[p]){
+      const d=()=>1+Math.floor(Math.random()*6);
+      G.duel[p]=[d(),d()]; G.show[p]=G.duel[p]; G.rid[p]++;
+      if(G.duel.A&&G.duel.B){
+        const sa=G.duel.A[0]+G.duel.A[1], sb=G.duel.B[0]+G.duel.B[1];
+        if(sa===sb){G.tie={A:sa,B:sb};G.duel={A:null,B:null}}
+        else{G.tie=null;G.won=sa>sb?'A':'B';G.phase='choose'}
+      }
+      return commit();
+    }
+    if(a.k==='dchoose'&&G.phase==='choose'&&G.won===p&&(a.who==='me'||a.who==='other')){
+      G.doer=a.who==='me'?p:other(p); G.phase='roll'; return commit();
+    }
+    if(a.k==='droll'&&G.phase==='roll'&&G.won===p){
       const L=DADO[G.level], r=n=>Math.floor(Math.random()*n);
-      G.roll={who:p,acc:L.acc[r(6)],zona:L.zona[r(6)],t:DADO_T[r(6)],n:G.count+1}; G.count++; G.turn=other(p); return commit();
+      G.count++; G.roll={doer:G.doer,acc:L.acc[r(6)],zona:L.zona[r(6)],t:DADO_T[r(6)],n:G.count}; G.phase='show'; return commit();
+    }
+    if(a.k==='dnext'&&G.phase==='show'){
+      Object.assign(G,{phase:'duel',duel:{A:null,B:null},show:{A:null,B:null},tie:null,won:null,doer:null,round:G.round+1});
+      return commit();
     }
     return;
   }
@@ -1341,23 +1372,25 @@ function renderBasta(){
 /* ---- Serpientes y escaleras ---- */
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 const FACE_ROT={1:[0,0],2:[0,-90],3:[-90,0],4:[90,0],5:[0,90],6:[0,180]};
-let dieRot={x:-20,y:25}, serpAnim={seen:null,stage:2,fresh:false,timers:[],slide:null};
-function die3dHtml(){
-  return `<div class="die3d" id="die3d"><div class="cube still" id="cube" style="transform:rotateX(${dieRot.x}deg) rotateY(${dieRot.y}deg)">${
+let dieRot={}, serpAnim={seen:null,stage:2,fresh:false,timers:[],slide:null};
+function die3dHtml(id,cls=''){
+  const r=dieRot[id]||(dieRot[id]={x:-20,y:25});
+  return `<div class="die3d ${cls}" id="die-${id}"><div class="cube still" style="transform:rotateX(${r.x}deg) rotateY(${r.y}deg)">${
     [1,2,3,4,5,6].map(n=>`<div class="face f${n}">${Array.from({length:9},(_,i)=>`<i class="${PIPS[n].includes(i)?'on':''}"></i>`).join('')}</div>`).join('')}</div></div>`;
 }
-function spinDieTo(v){
-  const f=FACE_ROT[v], cube=document.getElementById('cube'), box=document.getElementById('die3d'); if(!cube)return;
-  dieRot={x:(Math.floor(dieRot.x/360)+2+Math.floor(Math.random()*2))*360+f[0], y:(Math.floor(dieRot.y/360)+2+Math.floor(Math.random()*2))*360+f[1]};
+function spinDieTo(id,v){
+  const f=FACE_ROT[v], box=document.getElementById('die-'+id); if(!box)return;
+  const cube=box.querySelector('.cube'), r=dieRot[id]||{x:0,y:0};
+  dieRot[id]={x:(Math.floor(r.x/360)+2+Math.floor(Math.random()*2))*360+f[0], y:(Math.floor(r.y/360)+2+Math.floor(Math.random()*2))*360+f[1]};
   box.classList.add('bounce');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{cube.classList.remove('still');cube.style.transform=`rotateX(${dieRot.x}deg) rotateY(${dieRot.y}deg)`}));
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{cube.classList.remove('still');cube.style.transform=`rotateX(${dieRot[id].x}deg) rotateY(${dieRot[id].y}deg)`}));
 }
-function setDieFace(v){const f=FACE_ROT[v];dieRot={x:Math.round(dieRot.x/360)*360+f[0],y:Math.round(dieRot.y/360)*360+f[1]}}
+function setDieFace(id,v){const f=FACE_ROT[v],r=dieRot[id]||{x:0,y:0};dieRot[id]={x:Math.round(r.x/360)*360+f[0],y:Math.round(r.y/360)*360+f[1]}}
 function serpXY(n){const r=Math.floor((n-1)/10),c=r%2===0?(n-1)%10:9-(n-1)%10;return [c*10+5,(9-r)*10+5]}
 function renderSerp(){
   const G=S.g.serp, mv=G.lastMove;
   // ¿llegó una tirada nueva? → animar dado y luego mover la ficha
-  if(serpAnim.seen===null){serpAnim.seen=G.moves;serpAnim.stage=2;if(G.roll)setDieFace(G.roll)}
+  if(serpAnim.seen===null){serpAnim.seen=G.moves;serpAnim.stage=2;if(G.roll)setDieFace('serp',G.roll)}
   else if(G.moves!==serpAnim.seen&&mv){
     serpAnim.seen=G.moves; serpAnim.stage=0; serpAnim.fresh=true;
     serpAnim.timers.forEach(clearTimeout);
@@ -1409,13 +1442,13 @@ function renderSerp(){
   view.innerHTML=`<div class="stack">${head('🐍 Serpientes y escaleras')}
     ${playersBar(G,'<span class="disc A" style="width:22px;height:22px"></span>','<span class="disc B" style="width:22px;height:22px"></span>')}
     <p class="status" aria-live="polite">${status}</p>
-    <div class="dicebox">${die3dHtml()}
+    <div class="dicebox">${die3dHtml('serp')}
       ${G.status==='playing'?`<button id="roll" ${myTurn?'':'disabled'}>${myTurn?'Tirar dado':(animating?'…':'Espera tu turno')}</button>`:''}</div>
     ${lm}
     <div class="serp"><div class="sgrid">${cells}</div><svg viewBox="0 0 100 100" aria-hidden="true">${over}</svg></div>
     <p class="msg center">Casilla: tú ${shown(me)||'salida'} · rival ${shown(other(me))||'salida'}</p>
     ${animating?'':tail(G)}</div>`;
-  if(serpAnim.fresh&&st===0){serpAnim.fresh=false;spinDieTo(G.roll)}
+  if(serpAnim.fresh&&st===0){serpAnim.fresh=false;spinDieTo('serp',G.roll)}
   const rb=document.getElementById('roll'); if(rb)rb.onclick=()=>{rb.disabled=true;doAct({k:'roll'})};
   if(animating){document.getElementById('menu').onclick=()=>doAct({k:'menu'});wireFooter()}else wireCommon();
 }
@@ -1515,37 +1548,79 @@ function renderVerdad(){
   wireCommon();
 }
 
-let dadoSeen=null, dadoTimers=[];
+let dadoSeen=null, dadoTimers=[], duelSeen={};
 function renderDado(){
   const gate=adultGate('🎲 Dado picante'); if(gate){view.innerHTML=gate;return wireGate()}
-  const G=S.g.dado, R=G.roll;
-  const fresh=dadoSeen!==null&&R&&R.n!==dadoSeen;
+  const G=S.g.dado, R=G.roll, op=other(me);
+  const fresh=dadoSeen!==null&&R&&R.n!==dadoSeen&&G.phase==='show';
   dadoSeen=R?R.n:0;
-  const mine=G.turn===me;
   const lv=l=>l==='suave'?'😊 Suave':'🔥 Atrevido';
+  const sum=p=>G.show[p]?G.show[p][0]+G.show[p][1]:null;
+  // ¿qué dados hay que animar?
+  const animP=[];
+  for(const p of ['A','B']){
+    const key=G.round+':'+G.rid[p];
+    if(G.show[p]&&duelSeen[p]!==undefined&&duelSeen[p]!==key)animP.push(p);
+    if(G.show[p]&&duelSeen[p]===undefined)G.show[p].forEach((v,i)=>setDieFace('d'+p+i,v));
+    duelSeen[p]=key;
+  }
+  const pair=p=>`<div class="duelrow${G.show[p]?'':' wait'}${G.won===p?' win':''}">
+      <div class="who"><b>${p===me?'Tú':'Tu pareja'}</b><small>${G.show[p]?(animP.includes(p)?'…':'Suma '+sum(p)):(G.duel[p]?'':'Sin tirar')}</small></div>
+      <div class="pair">${die3dHtml('d'+p+'0')}${die3dHtml('d'+p+'1')}</div></div>`;
+  let body='', status='';
+  if(G.phase==='duel'){
+    status=G.duel[me]?'Esperando a que tu pareja tire…':'Tira tus 2 dados';
+    if(G.tie&&!G.duel[me]&&!G.duel[op])status=`¡Empate a ${G.tie.A}! Vuelvan a tirar`;
+    body=`${G.duel[me]?'':`<button id="dduel" ${connected?'':'disabled'}>🎲 Tirar mis 2 dados</button>`}`;
+  }else if(G.phase==='choose'){
+    if(G.won===me){status=`¡Ganaste ${sum(me)} a ${sum(op)}! Tú decides`;
+      body=`<div class="row"><button id="dme">😏 Yo se lo hago</button><button id="dother" class="v2">😍 Que me lo haga</button></div>`;}
+    else status=`Tu pareja ganó ${sum(op)} a ${sum(me)} y está decidiendo…`;
+  }else if(G.phase==='roll'){
+    const txt=G.doer===me?'Tú se lo haces a tu pareja':'Tu pareja te lo hace a ti';
+    status=txt;
+    body=G.won===me?`<button id="droll" ${connected?'':'disabled'}>🔥 Tirar dados picantes</button>`:'<p class="msg center">Tu pareja va a tirar los dados picantes…</p>';
+  }
+  let card='';
+  if(G.phase==='show'&&R){
+    card=`<section class="vcard reto"><div class="label">Ronda ${G.round} · ${R.doer===me?'tú se lo haces a tu pareja':'tu pareja te lo hace a ti'}</div>
+      <div class="dice3"><div><span>${esc(R.acc)}</span><small>Acción</small></div><div><span>${esc(R.zona)}</span><small>Zona</small></div><div><span>${R.t} s</span><small>Tiempo</small></div></div></section>
+      <button id="dnext" ${connected?'':'disabled'}>Siguiente ronda</button>`;
+    status=R.doer===me?'¡A cumplir!':'¡Disfruta!';
+  }
   view.innerHTML=`<div class="stack">${head('🎲 Dado picante')}
-    <section class="panel"><div class="label">Nivel</div>
-      <div class="opts two">${Object.keys(DADO).map(l=>`<button class="${G.level===l?'':'ghost'} dlvl" data-l="${l}" ${connected?'':'disabled'}>${lv(l)}</button>`).join('')}</div></section>
-    ${R?`<section class="vcard reto"><div class="label">Tirada ${R.n} · ${R.who===me?'tú se lo haces a tu pareja':'tu pareja te lo hace a ti'}</div>
-      <div class="dice3"><div><span>${esc(R.acc)}</span><small>Acción</small></div><div><span>${esc(R.zona)}</span><small>Zona</small></div><div><span>${R.t} s</span><small>Tiempo</small></div></div></section>`
-      :'<p class="msg center">Tira los dados: salen una acción, una zona del cuerpo y un tiempo. Quien tira se lo hace a su pareja.</p>'}
-    <p class="status">${mine?'Te toca tirar':'Le toca tirar a tu pareja'}</p>
-    ${mine?`<button id="droll" ${connected?'':'disabled'}>🎲 Tirar dados</button>`:''}
-    <p class="msg center">Si a alguno no le late, digan “paso” y vuelvan a tirar.</p>${footer()}</div>`;
+    ${G.phase==='duel'?`<section class="panel"><div class="label">Nivel</div>
+      <div class="opts two">${Object.keys(DADO).map(l=>`<button class="${G.level===l?'':'ghost'} dlvl" data-l="${l}" ${connected?'':'disabled'}>${lv(l)}</button>`).join('')}</div></section>`:''}
+    ${G.phase!=='show'?`<section class="panel duel"><div class="label center">Ronda ${G.round} · Duelo de dados</div>${pair(me)}${pair(op)}
+      <p class="msg center">Quien sume más decide quién se lo hace a quién.</p></section>`:''}
+    <p class="status" aria-live="polite">${status}</p>
+    ${body}${card}
+    <p class="msg center">Si a alguno no le late, digan “paso” y sigan a la siguiente ronda.</p>${footer()}</div>`;
   view.querySelectorAll('.dlvl').forEach(b=>b.onclick=()=>doAct({k:'dlevel',level:b.dataset.l}));
-  const d=document.getElementById('droll'); if(d)d.onclick=()=>{d.disabled=true;doAct({k:'droll'})};
+  const on=(id,f)=>{const e=document.getElementById(id);if(e)e.onclick=()=>{e.disabled=true;f()}};
+  on('dduel',()=>doAct({k:'dduel'})); on('dme',()=>doAct({k:'dchoose',who:'me'})); on('dother',()=>doAct({k:'dchoose',who:'other'}));
+  on('droll',()=>doAct({k:'droll'})); on('dnext',()=>doAct({k:'dnext'}));
+  // animar los dados del duelo
+  animP.forEach(p=>{G.show[p].forEach((v,i)=>spinDieTo('d'+p+i,v));
+    const row=[...view.querySelectorAll('.duelrow')][p===me?0:1], sm=row&&row.querySelector('small');
+    dadoTimers.push(setTimeout(()=>{if(sm)sm.textContent='Suma '+sum(p)},1150));
+  });
+  if(animP.length&&G.phase==='choose'){
+    const st=view.querySelector('.status'),bt=view.querySelectorAll('#dme,#dother'),fin=st.textContent;
+    st.textContent='🎲 …'; bt.forEach(b=>b.style.visibility='hidden');
+    dadoTimers.push(setTimeout(()=>{st.textContent=fin;bt.forEach(b=>b.style.visibility='')},1200));
+  }
   if(fresh){
-    dadoTimers.forEach(clearTimeout); dadoTimers=[];
     const L=DADO[G.level], pools=[L.acc,L.zona,DADO_T.map(t=>t+' s')], finals=[R.acc,R.zona,R.t+' s'];
     const boxes=[...view.querySelectorAll('.dice3 > div')];
-    const st=document.querySelector('.status'), btn=document.getElementById('droll'), finalStatus=st?st.textContent:'';
+    const st=view.querySelector('.status'), btn=document.getElementById('dnext'), finalStatus=st?st.textContent:'';
     if(st)st.textContent='🎲 Rodando…'; if(btn)btn.disabled=true;
     boxes.forEach((bx,i)=>{
       const sp=bx.querySelector('span'); bx.classList.add('rolling');
       const iv=setInterval(()=>{sp.textContent=pools[i][Math.floor(Math.random()*pools[i].length)]},90);
+      dadoTimers.push(iv);
       dadoTimers.push(setTimeout(()=>{clearInterval(iv);sp.textContent=finals[i];bx.classList.remove('rolling');bx.classList.add('landed');
         if(i===boxes.length-1){if(st)st.textContent=finalStatus;if(btn)btn.disabled=!connected}},700+450*i));
-      dadoTimers.push(iv);
     });
   }
   wireCommon();
