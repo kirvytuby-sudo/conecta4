@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Conecta 4 en Línea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#152331; --muted:#5b6b7b; --line:#d5dde5;
+  --board:#1f4e79; --hole:#e3e9ef; --red:#e2483d; --yellow:#f2b52b; --accent:#1f6fb8;
+  --display:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0f1720; --surface:#17222e; --ink:#e7eef5; --muted:#93a3b3; --line:#2a3846;
+  --board:#24527d; --hole:#0d141b; --red:#f05a4f; --yellow:#f5c142; --accent:#5aa6ec; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{min-height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.45 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
+.app{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1{font:800 clamp(28px,8vw,36px)/1 var(--display);margin:0;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+h1 .dots{display:inline-flex;gap:4px}
+h1 .dots i{width:14px;height:14px;border-radius:50%;background:var(--red);display:block}
+h1 .dots i:nth-child(even){background:var(--yellow)}
+h2{font:600 18px/1.2 var(--display);margin:0}
+.sub{color:var(--muted);margin:6px 0 0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row > *{flex:1 1 120px;min-width:0}
+button{font:700 16px var(--body);border:0;border-radius:10px;padding:13px 16px;cursor:pointer;background:var(--accent);color:#fff;min-height:48px}
+button.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,.col:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+input{font:700 20px var(--body);letter-spacing:.25em;text-transform:uppercase;text-align:center;border:1.5px solid var(--line);
+  border-radius:10px;padding:10px;background:var(--bg);color:var(--ink);min-height:48px;width:100%}
+.label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.msg{color:var(--muted);font-size:14px;margin:0}
+.err{color:var(--red);font-size:14px;margin:0}
+.code{font:800 40px/1 var(--display);letter-spacing:.18em;text-align:center}
+.link{font-size:13px;word-break:break-all;text-align:center;color:var(--muted);user-select:all}
+.players{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pl{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:2px solid transparent;background:var(--surface);min-width:0}
+.pl.active{border-color:var(--ink)}
+.pl .disc{width:22px;height:22px;flex:none}
+.pl .n{min-width:0;font-weight:700}
+.pl small{display:block;color:var(--muted);font-weight:500;font-size:12px}
+.status{font:600 20px/1.2 var(--display);text-align:center;min-height:24px;margin:0}
+.board{background:var(--board);border-radius:16px;padding:8px;display:grid;grid-template-columns:repeat(7,1fr);box-shadow:inset 0 -6px 0 rgba(0,0,0,.18)}
+.col{display:grid;grid-template-rows:repeat(6,1fr);border-radius:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.col.can:hover{background:rgba(255,255,255,.08)}
+.col:not(.can){cursor:default}
+.cell{aspect-ratio:1;padding:5%}
+.hole{width:100%;height:100%;border-radius:50%;background:var(--hole);box-shadow:inset 0 3px 4px rgba(0,0,0,.25);position:relative}
+.disc{border-radius:50%;display:block}
+.hole .disc{position:absolute;inset:0}
+.disc.r{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),transparent 45%),var(--red)}
+.disc.y{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.45),transparent 45%),var(--yellow)}
+.disc.drop{animation:drop .42s cubic-bezier(.3,0,.5,1.4) both}
+@keyframes drop{from{transform:translateY(var(--from))}to{transform:translateY(0)}}
+.disc.win{box-shadow:0 0 0 4px var(--surface),0 0 0 7px var(--ink)}
+@media (prefers-reduced-motion:reduce){.disc.drop{animation:none}}
+.foot{color:var(--muted);font-size:13px;text-align:center;margin:0}
+.conn{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2fae6b;margin-right:6px;vertical-align:middle}
+.conn.off{background:var(--red)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1><span class="dots"><i></i><i></i><i></i><i></i></span>Conecta 4</h1>
+    <p class="sub">Dos jugadores, cada uno en su celular. Alinea cuatro fichas en horizontal, vertical o diagonal.</p>
+  </header>
+  <main id="view"></main>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const ROWS=6, COLS=7, EMPTY='.'.repeat(ROWS*COLS);
+const ALPH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const PREFIX='conecta4-kv-';
+const view=document.getElementById('view');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let peer=null, conn=null, myColor=null, code=null, errMsg='', connected=false;
+let g=null, lastAnimKey=null;
+
+function freshGame(starter,score){return {board:EMPTY,turn:starter,starter,status:'playing',winner:null,winLine:null,last:null,moves:0,score:score||{r:0,y:0}}}
+function winLine(b){
+  const at=(r,c)=>(r<0||r>=ROWS||c<0||c>=COLS)?null:b[r*COLS+c];
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    const p=at(r,c); if(p==='.')continue;
+    for(const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1]]){
+      const line=[r*COLS+c]; let k=1;
+      while(k<4&&at(r+dr*k,c+dc*k)===p){line.push((r+dr*k)*COLS+c+dc*k);k++}
+      if(k===4)return line;
+    }
+  }
+  return null;
+}
+function dropRow(b,c){for(let r=ROWS-1;r>=0;r--)if(b[r*COLS+c]==='.')return r;return -1}
+function newCode(){let s='';const a=new Uint32Array(4);crypto.getRandomValues(a);for(const n of a)s+=ALPH[n%ALPH.length];return s}
+function shareUrl(c){return location.origin+location.pathname+'?sala='+c}
+
+/* ---------- Inicio ---------- */
+function renderHome(){
+  view.innerHTML=`<div class="stack">
+    <section class="panel">
+      <h2>Nueva partida</h2>
+      <p class="msg">Crea una sala y mándale el código o el enlace a tu rival. Tú juegas con rojas.</p>
+      <button id="create">Crear partida</button>
+    </section>
+    <section class="panel">
+      <h2>Unirme con código</h2>
+      <div class="row">
+        <input id="codeIn" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ABCD" aria-label="Código de 4 letras">
+        <button id="join">Unirme</button>
+      </div>
+      ${errMsg?`<p class="err">${esc(errMsg)}</p>`:''}
+    </section>
+  </div>`;
+  const ci=document.getElementById('codeIn');
+  ci.addEventListener('keydown',e=>{if(e.key==='Enter')join(ci.value)});
+  document.getElementById('join').onclick=()=>join(ci.value);
+  document.getElementById('create').onclick=()=>host();
+}
+function renderMsg(t){view.innerHTML=`<section class="panel"><p class="msg">${esc(t)}</p><button class="ghost" id="cancel">Cancelar</button></section>`;document.getElementById('cancel').onclick=reset}
+
+function reset(){
+  try{conn&&conn.close()}catch(e){} try{peer&&peer.destroy()}catch(e){}
+  peer=conn=null;myColor=null;code=null;g=null;connected=false;lastAnimKey=null;
+  try{history.replaceState(null,'',location.pathname)}catch(e){}
+  renderHome();
+}
+
+/* ---------- Conexión ---------- */
+function host(tries=0){
+  if(typeof Peer==='undefined'){errMsg='No se pudo cargar el módulo de conexión. Revisa tu internet.';return renderHome()}
+  errMsg=''; code=newCode(); myColor='r';
+  renderMsg('Creando sala…');
+  peer=new Peer(PREFIX+code);
+  peer.on('open',()=>renderWaiting());
+  peer.on('error',e=>{
+    if(e.type==='unavailable-id'&&tries<4){peer.destroy();return host(tries+1)}
+    if(!connected){errMsg='No se pudo crear la sala ('+e.type+'). Intenta de nuevo.';reset()}
+  });
+  peer.on('connection',c=>{
+    if(conn&&conn.open){c.on('open',()=>{c.send({t:'full'});setTimeout(()=>c.close(),300)});return}
+    attach(c);
+    c.on('open',()=>{
+      if(!g)g=freshGame('r');
+      send({t:'state',g});
+    });
+  });
+}
+function join(raw){
+  const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(c.length!==4){errMsg='Escribe el código de 4 caracteres.';return renderHome()}
+  if(typeof Peer==='undefined'){errMsg='No se pudo cargar el módulo de conexión. Revisa tu internet.';return renderHome()}
+  errMsg=''; code=c; myColor='y';
+  renderMsg('Conectando a la sala '+c+'…');
+  peer=new Peer();
+  peer.on('open',()=>{
+    const cn=peer.connect(PREFIX+c,{reliable:true});
+    attach(cn);
+    setTimeout(()=>{if(!connected){errMsg='No se encontró la sala '+c+'. Revisa el código o que tu rival siga en la pantalla de espera.';reset()}},12000);
+  });
+  peer.on('error',e=>{
+    if(e.type==='peer-unavailable'){errMsg='No existe la sala '+c+'. Revisa el código.';return reset()}
+    if(!connected){errMsg='No se pudo conectar ('+e.type+').';reset()}
+  });
+}
+function attach(c){
+  conn=c;
+  c.on('open',()=>{connected=true; try{history.replaceState(null,'',location.pathname+'?sala='+code)}catch(e){} if(g)renderGame()});
+  c.on('data',onData);
+  c.on('close',()=>{if(connected){connected=false;if(g)renderGame()}});
+  c.on('error',()=>{});
+}
+function send(m){try{conn&&conn.open&&conn.send(m)}catch(e){}}
+function onData(m){
+  if(!m||typeof m!=='object')return;
+  if(m.t==='full'){errMsg='Esa sala ya tiene dos jugadores.';return reset()}
+  if(m.t==='state'&&m.g){g=m.g;renderGame()}
+  if(m.t==='move'&&g)applyMove(m.c,m.p,false);
+  if(m.t==='rematch'&&g&&g.status==='done'&&(m.s==='r'||m.s==='y')){g=freshGame(m.s,g.score);renderGame()}
+}
+
+/* ---------- Juego ---------- */
+function applyMove(c,p,local){
+  if(!g||g.status!=='playing'||g.turn!==p)return;
+  const r=dropRow(g.board,c); if(r<0)return;
+  const i=r*COLS+c;
+  g.board=g.board.slice(0,i)+p+g.board.slice(i+1);
+  g.last=i; g.moves++; g.turn=p==='r'?'y':'r';
+  const line=winLine(g.board);
+  if(line){g.status='done';g.winner=p;g.winLine=line;g.score={...g.score,[p]:g.score[p]+1}}
+  else if(!g.board.includes('.')){g.status='done';g.winner='draw'}
+  if(local)send({t:'move',c,p});
+  renderGame();
+}
+
+function renderWaiting(){
+  const url=shareUrl(code);
+  view.innerHTML=`<section class="panel">
+    <div class="label" style="text-align:center">Código de la sala</div>
+    <div class="code">${esc(code)}</div>
+    <p class="msg" style="text-align:center">Tu rival abre esta página y escribe el código, o abre directamente este enlace:</p>
+    <div class="link" id="lnk">${esc(url)}</div>
+    <div class="row">
+      <button id="share">Enviar enlace</button>
+      <button class="ghost" id="copy">Copiar</button>
+    </div>
+    <p class="msg" style="text-align:center">Esperando a tu rival… No cierres esta pantalla.</p>
+    <button class="ghost" id="cancel">Cancelar</button>
+  </section>`;
+  document.getElementById('cancel').onclick=reset;
+  const share=document.getElementById('share');
+  if(navigator.share)share.onclick=()=>navigator.share({title:'Conecta 4',text:'¡Juguemos Conecta 4! Código: '+code,url}).catch(()=>{});
+  else share.hidden=true;
+  const copy=document.getElementById('copy');
+  copy.onclick=()=>navigator.clipboard.writeText(url).then(()=>{copy.textContent='Copiado ✓'},()=>{
+    const r=document.createRange();r.selectNodeContents(document.getElementById('lnk'));const s=getSelection();s.removeAllRanges();s.addRange(r);
+  });
+}
+
+function renderGame(){
+  const myTurn=g.status==='playing'&&g.turn===myColor&&connected;
+  const colorName=p=>p==='r'?'rojas':'amarillas';
+  let status;
+  if(g.status==='done') status=g.winner==='draw'?'¡Empate!':(g.winner===myColor?'¡Ganaste! 🎉':'Ganó tu rival');
+  else if(!connected) status='Rival desconectado';
+  else status=myTurn?'Te toca':'Turno de tu rival';
+
+  const b=g.board, win=new Set(g.winLine||[]);
+  const key=g.moves+':'+g.last, animate=g.last!=null&&lastAnimKey!==null&&lastAnimKey!==key;
+  let cols='';
+  for(let c=0;c<COLS;c++){
+    const can=myTurn&&dropRow(b,c)>=0;
+    let cells='';
+    for(let r=0;r<ROWS;r++){
+      const i=r*COLS+c,p=b[i];
+      cells+=`<div class="cell"><div class="hole">${p==='.'?'':`<span class="disc ${p}${win.has(i)?' win':''}${animate&&i===g.last?' drop':''}" style="--from:-${(r+1)*118}%"></span>`}</div></div>`;
+    }
+    cols+=`<div class="col${can?' can':''}" data-c="${c}" role="button" tabindex="${can?0:-1}" aria-label="Columna ${c+1}">${cells}</div>`;
+  }
+  lastAnimKey=key;
+  const meLabel=p=>p===myColor?'Tú':'Rival';
+  view.innerHTML=`<div class="stack">
+    <div class="players">
+      <div class="pl ${g.status==='playing'&&g.turn==='r'?'active':''}"><span class="disc r"></span><div class="n">${meLabel('r')}<small>Rojas · ${g.score.r}</small></div></div>
+      <div class="pl ${g.status==='playing'&&g.turn==='y'?'active':''}"><span class="disc y"></span><div class="n">${meLabel('y')}<small>Amarillas · ${g.score.y}</small></div></div>
+    </div>
+    <p class="status" aria-live="polite">${esc(status)}</p>
+    <div class="board">${cols}</div>
+    <div class="row">
+      ${g.status==='done'&&connected?'<button id="again">Revancha</button>':''}
+      <button class="ghost" id="leave">Salir</button>
+    </div>
+    <p class="foot"><span class="conn${connected?'':' off'}"></span>Sala ${esc(code)} · Juegas con ${colorName(myColor)}</p>
+  </div>`;
+  view.querySelectorAll('.col.can').forEach(el=>{
+    el.onclick=()=>applyMove(+el.dataset.c,myColor,true);
+    el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();applyMove(+el.dataset.c,myColor,true)}};
+  });
+  document.getElementById('leave').onclick=reset;
+  const again=document.getElementById('again');
+  if(again)again.onclick=()=>{const s=g.starter==='r'?'y':'r';g=freshGame(s,g.score);send({t:'rematch',s});renderGame()};
+}
+
+/* ---------- Arranque ---------- */
+const sala=new URLSearchParams(location.search).get('sala');
+if(sala&&/^[A-Za-z0-9]{4}$/.test(sala))join(sala); else renderHome();
+</script>
+</body>
+</html>
