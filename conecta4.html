@@ -3,9 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1720" id="themeColor">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Juegos">
 <title>Sala de Juegos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;700&family=Permanent+Marker&family=Caveat:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;700&family=Permanent+Marker&family=Caveat:wght@600;700&family=Black+Ops+One&family=Cinzel:wght@700;900&family=Bangers&display=swap">
 <style>
 :root{
   --bg:#eef1f4; --surface:#ffffff; --ink:#152331; --muted:#5b6b7b; --line:#d5dde5;
@@ -395,6 +399,113 @@ button.v2{background:#a2387a}
 .snkt{stroke:#e53935;stroke-width:.5;fill:none;stroke-linecap:round}
 .lad line{stroke:#a0692f;stroke-width:1.1}
 .lad line.rail{stroke:#7a4a1e;stroke-width:1.4}
+
+/* ================= TEMAS POR JUEGO ================= */
+:root{--hfont:var(--display);--on-accent:#fff;--bgimg:none}
+body{background:var(--bgimg),var(--bg);background-attachment:fixed;transition:background-color .3s}
+h2{font-family:var(--hfont)}
+button:not(.ghost):not(.game):not(.gcell):not(.sq):not(.keys button){color:var(--on-accent)}
+:root[data-game]:not([data-game="lobby"]) header .sub{display:none}
+:root[data-game]:not([data-game="lobby"]) header h1{font-size:22px;opacity:.85}
+:root[data-game]:not([data-game="lobby"]) header h1 .dots i{width:9px;height:9px}
+.ghead h2{font-size:22px}
+
+/* Lobby / menú: sala de juegos nocturna */
+:root[data-game="lobby"]{--bg:#141029;--surface:rgba(255,255,255,.06);--ink:#f3efff;--muted:#a9a2c8;--line:rgba(255,255,255,.14);--accent:#ff4f8b;
+  --bgimg:radial-gradient(circle at 15% 10%,rgba(255,79,139,.25),transparent 40%),radial-gradient(circle at 90% 30%,rgba(79,195,255,.22),transparent 45%),radial-gradient(circle at 50% 100%,rgba(255,200,60,.15),transparent 50%);color-scheme:dark}
+.menuh{font-size:26px}
+.cat{display:flex;flex-direction:column;gap:8px}
+.game{border:0;color:#fff;min-height:128px;position:relative;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.3);transition:transform .15s}
+.game:active{transform:scale(.97)}
+.game .ic{font-size:34px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.game b{font-size:16px;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.game small{color:rgba(255,255,255,.85)}
+.game small.gsc{font-weight:700;margin-top:auto}
+.game::after{content:"";position:absolute;right:-20px;bottom:-20px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.1)}
+.g-c4{background:linear-gradient(135deg,#2f78c4,#174d8c)} .g-gato{background:linear-gradient(135deg,#e9e2c8,#c9bf9a);color:#2b2b2b}
+.g-gato small,.g-gato b{color:#2b2b2b;text-shadow:none}
+.g-ppt{background:linear-gradient(135deg,#ff9f1c,#ff4e1c)} .g-ahor{background:linear-gradient(135deg,#3b5a47,#1e3227)}
+.g-basta{background:linear-gradient(135deg,#e53935,#a3171b)} .g-damas{background:linear-gradient(135deg,#8a5a2f,#4a2c14)}
+.g-chinas{background:linear-gradient(135deg,#b71c1c,#5c0f12)} .g-naval{background:linear-gradient(135deg,#0d4a74,#062238)}
+.g-cajas{background:linear-gradient(135deg,#5c6bc0,#303f9f)} .g-serp{background:linear-gradient(135deg,#43a047,#1b5e20)}
+.g-poker{background:linear-gradient(135deg,#1b6b42,#0b2e1c)} .g-verdad{background:linear-gradient(135deg,#a2387a,#4a1062)}
+.g-dado{background:linear-gradient(135deg,#c2185b,#5a0820)}
+
+/* Conecta 4: día soleado de juguete */
+:root[data-game="c4"]{--bg:#7cc4f5;--surface:rgba(255,255,255,.85);--ink:#123056;--muted:#3d5c80;--line:rgba(18,48,86,.15);--accent:#f5a623;--hfont:"Bangers",var(--display);
+  --bgimg:radial-gradient(ellipse 120px 40px at 20% 12%,rgba(255,255,255,.9),transparent 70%),radial-gradient(ellipse 160px 50px at 80% 22%,rgba(255,255,255,.8),transparent 70%),linear-gradient(180deg,#5fb4f0,#bfe4ff);color-scheme:light}
+:root[data-game="c4"] .ghead h2{letter-spacing:.04em;font-size:28px}
+
+/* Gato: cuaderno escolar */
+:root[data-game="gato"]{--bg:#f7f3e6;--surface:#fffdf4;--ink:#1d2b4f;--muted:#5c6688;--line:#d8d2bc;--accent:#d32f2f;--hfont:var(--marker);
+  --bgimg:repeating-linear-gradient(transparent 0 27px,#cfe0f2 27px 28px);color-scheme:light}
+
+/* Piedra, papel o tijera: cómic */
+:root[data-game="ppt"]{--bg:#ffb347;--surface:#fff;--ink:#1b1b1b;--muted:#5a3d1a;--line:#1b1b1b;--accent:#e53935;--hfont:"Bangers",var(--display);
+  --bgimg:repeating-conic-gradient(from 0deg at 50% 30%,rgba(255,255,255,.25) 0 10deg,transparent 10deg 20deg),radial-gradient(circle at 50% 30%,#ffd54f,#ff8f1f 70%);color-scheme:light}
+:root[data-game="ppt"] .panel,:root[data-game="ppt"] .ppt button{border:3px solid #1b1b1b;box-shadow:4px 4px 0 #1b1b1b}
+:root[data-game="ppt"] .ghead h2,:root[data-game="ppt"] .status{font-family:"Bangers",var(--display);letter-spacing:.05em;font-size:26px}
+
+/* Ahorcado: salón de clases */
+:root[data-game="ahor"]{--bg:#24382c;--surface:rgba(255,255,255,.07);--ink:#f2efe3;--muted:#b9c4b5;--line:rgba(255,255,255,.18);--accent:#c98a3c;--hfont:var(--hand);
+  --bgimg:radial-gradient(circle at 50% 0,rgba(255,255,255,.08),transparent 60%);color-scheme:dark}
+:root[data-game="ahor"] .ghead h2{font-size:30px}
+:root[data-game="ahor"] .word span{border-color:#f2efe3}
+:root[data-game="ahor"] .keys button{background:rgba(255,255,255,.1);color:#f2efe3;border-color:rgba(255,255,255,.25);font-family:var(--hand);font-size:22px}
+:root[data-game="ahor"] .keys button.hit{background:#4caf50}
+:root[data-game="ahor"] .keys button.no{background:transparent;color:#7d8a7a}
+:root[data-game="ahor"] .hang{border-color:#a0692f}
+
+/* Basta: hoja de libreta */
+:root[data-game="basta"]{--bg:#fdf6e3;--surface:#fffdf6;--ink:#1d2b4f;--muted:#7a6a45;--line:#e6dcc0;--accent:#d32f2f;--hfont:var(--marker);
+  --bgimg:linear-gradient(90deg,transparent 30px,#f3a6a6 30px 32px,transparent 32px),repeating-linear-gradient(transparent 0 27px,#cfe0f2 27px 28px);color-scheme:light}
+
+/* Batalla naval: centro de mando */
+:root[data-game="naval"]{--bg:#06233b;--surface:rgba(10,52,84,.75);--ink:#d7f1ff;--muted:#86b6d6;--line:rgba(120,200,255,.25);--accent:#00b4d8;--hfont:"Black Ops One",var(--display);
+  --bgimg:linear-gradient(rgba(0,180,216,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,216,.08) 1px,transparent 1px),radial-gradient(circle at 50% 20%,#0d4a74,#06233b 70%);color-scheme:dark}
+:root[data-game="naval"] body{background-size:24px 24px,24px 24px,auto}
+:root[data-game="naval"] .ghead h2,:root[data-game="naval"] .status,:root[data-game="naval"] .fleetinfo b{font-family:"Black Ops One",var(--display);letter-spacing:.04em}
+
+/* Damas: café de madera */
+:root[data-game="damas"]{--bg:#3b2414;--surface:rgba(255,235,205,.08);--ink:#f6e7cf;--muted:#cdb08a;--line:rgba(246,231,207,.2);--accent:#b8862b;--hfont:"Cinzel",Georgia,serif;
+  --bgimg:repeating-linear-gradient(95deg,rgba(0,0,0,.08) 0 2px,transparent 2px 9px),linear-gradient(160deg,#5a371c,#2e1b0e);color-scheme:dark}
+
+/* Damas chinas: laca roja y dorado */
+:root[data-game="chinas"]{--bg:#5c0f12;--surface:rgba(255,215,130,.08);--ink:#ffe8b0;--muted:#e0b46a;--line:rgba(255,215,130,.3);--accent:#d4a017;--on-accent:#3b0a0c;--hfont:"Cinzel",Georgia,serif;
+  --bgimg:radial-gradient(circle at 50% 30%,rgba(255,215,130,.15),transparent 60%),repeating-radial-gradient(circle at 0 0,transparent 0 14px,rgba(255,215,130,.05) 14px 15px);color-scheme:dark}
+:root[data-game="chinas"] .ghead h2{color:#ffd166}
+
+/* Puntos y cajas: papel milimétrico */
+:root[data-game="cajas"]{--bg:#f6f8fb;--surface:#ffffff;--ink:#1f2a37;--muted:#5d6b7c;--line:#d9e2ec;--accent:#3949ab;--hfont:var(--hand);
+  --bgimg:linear-gradient(#e3eaf3 1px,transparent 1px),linear-gradient(90deg,#e3eaf3 1px,transparent 1px);color-scheme:light}
+:root[data-game="cajas"] body{background-size:16px 16px,16px 16px,auto}
+:root[data-game="cajas"] .ghead h2{font-size:30px}
+
+/* Serpientes y escaleras: selva */
+:root[data-game="serp"]{--bg:#1f5a2a;--surface:rgba(255,255,255,.12);--ink:#f1ffe8;--muted:#bfe3b0;--line:rgba(255,255,255,.2);--accent:#ffb300;--on-accent:#2b1a00;--hfont:"Bangers",var(--display);
+  --bgimg:radial-gradient(circle at 10% 10%,rgba(139,195,74,.5),transparent 35%),radial-gradient(circle at 90% 60%,rgba(56,142,60,.6),transparent 40%),linear-gradient(180deg,#2e7d32,#174a1f);color-scheme:dark}
+:root[data-game="serp"] .ghead h2{letter-spacing:.04em;font-size:26px}
+
+/* Póker: casino */
+:root[data-game="poker"]{--bg:#0d3b24;--surface:rgba(0,0,0,.25);--ink:#f5ecd2;--muted:#c9b98a;--line:rgba(212,175,55,.35);--accent:#d4af37;--on-accent:#1e1400;--hfont:"Cinzel",Georgia,serif;
+  --bgimg:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.08),transparent 60%),repeating-linear-gradient(45deg,rgba(0,0,0,.06) 0 2px,transparent 2px 6px);color-scheme:dark}
+:root[data-game="poker"] .ghead h2{color:#e8c766}
+:root[data-game="poker"] .pkraise button{color:var(--ink)}
+
+/* Verdad o reto: club nocturno */
+:root[data-game="verdad"]{--bg:#2a0b3d;--surface:rgba(255,255,255,.07);--ink:#ffe6f7;--muted:#d6a8d0;--line:rgba(255,120,220,.3);--accent:#ff2e93;--hfont:"Bangers",var(--display);
+  --bgimg:radial-gradient(circle at 20% 15%,rgba(255,46,147,.35),transparent 40%),radial-gradient(circle at 85% 70%,rgba(138,43,226,.4),transparent 45%);color-scheme:dark}
+:root[data-game="verdad"] .ghead h2{letter-spacing:.05em;font-size:28px;text-shadow:0 0 12px #ff2e93}
+
+/* Dado picante: terciopelo y dorado */
+:root[data-game="dado"]{--bg:#3a0712;--surface:rgba(255,200,170,.07);--ink:#ffe9e0;--muted:#e3a9a0;--line:rgba(255,190,160,.25);--accent:#c2185b;--hfont:"Cinzel",Georgia,serif;
+  --bgimg:radial-gradient(circle at 50% 0,rgba(255,80,120,.3),transparent 55%),repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 3px,transparent 3px 14px);color-scheme:dark}
+:root[data-game="dado"] .ghead h2{color:#ffb4a8}
+:root[data-game="dado"] .duelrow{background:rgba(0,0,0,.25)}
+
+/* Botones fantasma y paneles legibles en temas oscuros */
+:root[data-game] button.ghost{color:var(--ink);border-color:var(--line)}
+:root[data-game] .pl{background:var(--surface)}
 
 .foot{color:var(--muted);font-size:13px;text-align:center;margin:0}
 .conn{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:middle}
@@ -1052,6 +1163,7 @@ function reset(){
 
 /* ================= Pantallas ================= */
 function renderHome(){
+  setTheme('lobby');
   view.innerHTML=`<div class="stack">
     <section class="panel">
       <h2>Nueva sala</h2>
@@ -1110,7 +1222,11 @@ function wireFooter(){
   const r=document.getElementById('reconn'); if(r)r.onclick=()=>join(code);
 }
 
+const THEME_BAR={lobby:'#141029',c4:'#5fb4f0',gato:'#f7f3e6',ppt:'#ff8f1f',ahor:'#24382c',naval:'#06233b',damas:'#3b2414',chinas:'#5c0f12',
+  cajas:'#f6f8fb',basta:'#fdf6e3',serp:'#1f5a2a',poker:'#0d3b24',verdad:'#2a0b3d',dado:'#3a0712'};
+function setTheme(t){document.documentElement.dataset.game=t;const m=document.getElementById('themeColor');if(m)m.content=THEME_BAR[t]||'#141029'}
 function render(){
+  setTheme(S&&S.game?S.game:'lobby');
   if(!S){return isHost?renderWaiting():null}
   if(isHost&&!connected&&S.v===0)return renderWaiting();
   if(!S.game)return renderMenu();
@@ -1120,12 +1236,13 @@ function render(){
 }
 
 function renderMenu(){
+  const CATS=[['Clásicos',['c4','gato','ppt','ahor','basta']],['Juegos de mesa',['damas','chinas','naval','cajas','serp','poker']],['Para adultos · 18+',['verdad','dado']]];
+  const card=k=>{const g=GAMES[k],sc=S.score[k];
+    return `<button class="game g-${k}" data-g="${k}" ${connected?'':'disabled'}><span class="ic">${g.ic}</span><b>${g.name.replace(' 🔥','')}</b>
+      <small>${g.desc}</small>${g.adult?'':`<small class="gsc">Tú ${sc[me]} – ${sc[other(me)]} Rival</small>`}</button>`};
   view.innerHTML=`<div class="stack">
-    <h2>¿A qué jugamos?</h2>
-    <div class="games">${Object.entries(GAMES).map(([k,g])=>{
-      const sc=S.score[k];
-      return `<button class="game" data-g="${k}" ${connected?'':'disabled'}><span class="ic">${g.ic}</span><b>${g.name}</b>
-      <small>${g.desc}</small>${g.adult?'':`<small>Tú ${sc[me]} – ${sc[other(me)]} Rival</small>`}</button>`}).join('')}</div>
+    <h2 class="menuh">¿A qué jugamos?</h2>
+    ${CATS.map(([t,ks])=>`<div class="cat"><div class="label">${t}</div><div class="games">${ks.map(card).join('')}</div></div>`).join('')}
     <p class="msg center">Cualquiera de los dos puede elegir.</p>
     <button class="ghost" id="leave">Salir de la sala</button>
     ${footer()}
