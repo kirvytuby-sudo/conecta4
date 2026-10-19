@@ -327,6 +327,8 @@ button.v2{background:#a2387a}
 .hang .p{stroke:#f4f1e6;stroke-width:4.5;filter:url(#chalk)}
 .hang .p.miss{stroke:#ff8a80}
 .word{font:700 34px/1 var(--hand)}
+.clue{background:#fff7d6;color:#5a4300;border:1px solid #f0d77a;border-radius:10px;padding:10px 12px;font-size:15px;text-align:center}
+.clue i{opacity:.7}
 .word span{border-bottom-width:3px}
 
 /* Basta: hoja rayada */
@@ -784,7 +786,15 @@ function act(p,a){
       if(G.phase!=='setting'||G.setter!==p)return;
       const w=cleanWord(a.w); const letters=w.replace(/ /g,'');
       if(letters.length<3||w.length>20)return;
-      G.word=w; G.phase='guessing'; return commit();
+      G.word=w; G.clue=String(a.clue||'').replace(/\s+/g,' ').trim().slice(0,60); G.hints=0; G.phase='guessing'; return commit();
+    }
+    if(a.k==='hint'){
+      if(G.phase!=='guessing'||G.status!=='playing'||G.setter===p||G.misses>=5)return;
+      const pend=[...new Set([...G.word].filter(ch=>ch!==' '&&!G.guessed.includes(ch)))]; if(!pend.length)return;
+      const l=pend[Math.floor(Math.random()*pend.length)];
+      G.guessed+=l; G.misses++; G.hints=(G.hints||0)+1;
+      if([...G.word].every(ch=>ch===' '||G.guessed.includes(ch))){G.status='done';G.winner=other(G.setter);S.score.ahor[G.winner]++}
+      return commit();
     }
     if(a.k==='letter'){
       if(G.phase!=='guessing'||G.status!=='playing'||G.setter===p)return;
@@ -1250,6 +1260,8 @@ function renderAhor(){
         <h2>Escribe una palabra secreta</h2>
         <p class="msg">Tu rival tendrá que adivinarla letra por letra. Mínimo 3 letras, sin números.</p>
         <input id="wordIn" type="password" maxlength="20" autocomplete="off" autocapitalize="characters" placeholder="PALABRA" aria-label="Palabra secreta">
+        <label class="bfield"><span>💡 Pista para tu rival (opcional)</span>
+        <input id="clueIn" class="binput" maxlength="60" autocomplete="off" placeholder="Ej. animal, fruta, algo de la casa…"></label>
         <p class="err" id="wErr" hidden></p>
         <button id="setWord" ${connected?'':'disabled'}>Listo</button></section>`
       :`<section class="panel"><p class="status">Tu rival está escribiendo una palabra secreta…</p><p class="msg center">Tú vas a adivinar. Tienes 6 errores.</p></section>`;
@@ -1265,11 +1277,16 @@ function renderAhor(){
     const keys='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('').map(l=>{
       const used=G.guessed.includes(l), hit=used&&G.word.includes(l);
       return `<button data-l="${l}" class="${used?(hit?'hit':'no'):''}" ${canGuess&&!used?'':'disabled'}>${l}</button>`}).join('');
+    const letters=[...G.word].filter(ch=>ch!==' ').length;
+    const clueHtml=`<div class="clue">💡 <b>Pista:</b> ${G.clue?esc(G.clue):'<i>sin pista escrita</i>'} · ${letters} letras${G.word.includes(' ')?' ('+G.word.split(' ').length+' palabras)':''}${G.hints?` · letras regaladas: ${G.hints}`:''}</div>`;
+    const canHint=!iSet&&G.status==='playing'&&connected&&G.misses<5;
     body=`<div class="hang">${hangSvg(G.misses,lost)}</div>
       <p class="msg center">Errores: ${G.misses} de 6</p>
+      ${clueHtml}
       <div class="word" aria-label="Palabra">${word}</div>
       <p class="status" aria-live="polite">${status}</p>
-      <div class="keys">${keys}</div>`;
+      <div class="keys">${keys}</div>
+      ${!iSet&&G.status==='playing'?`<button class="ghost" id="hintBtn" ${canHint?'':'disabled'}>💡 Pedir letra (cuesta 1 error)</button>`:''}`;
   }
   view.innerHTML=`<div class="stack">${head('🔤 Ahorcado')}
     <p class="msg center">${iSet?'Tú pones la palabra':'Tú adivinas'} · En la siguiente se cambian los papeles</p>
@@ -1279,10 +1296,11 @@ function renderAhor(){
     const wi=document.getElementById('wordIn'), we=document.getElementById('wErr');
     const go=()=>{const w=cleanWord(wi.value);
       if(w.replace(/ /g,'').length<3){we.textContent='Escribe al menos 3 letras.';we.hidden=false;return}
-      doAct({k:'word',w})};
+      doAct({k:'word',w,clue:(document.getElementById('clueIn')||{}).value||''})};
     sw.onclick=go; wi.addEventListener('keydown',e=>{if(e.key==='Enter')go()});
   }
   view.querySelectorAll('.keys button:not(:disabled)').forEach(b=>b.onclick=()=>doAct({k:'letter',l:b.dataset.l}));
+  const hb=document.getElementById('hintBtn'); if(hb)hb.onclick=()=>{hb.disabled=true;doAct({k:'hint'})};
   wireCommon();
 }
 
