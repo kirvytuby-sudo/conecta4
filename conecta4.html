@@ -19,6 +19,7 @@
   --board:#24527d; --hole:#0d141b; --red:#f05a4f; --yellow:#f5c142; --accent:#5aa6ec; --ok:#3cc28a; color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{min-height:100%;margin:0}
+html{background:var(--bg)}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.45 var(--body);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
@@ -146,6 +147,14 @@ input{font:700 20px var(--body);letter-spacing:.2em;text-transform:uppercase;tex
 .dm .sq.mov .pc{outline:3px solid #fff;cursor:pointer}
 .dm .sq.sel .pc{outline:3px solid var(--ok);transform:scale(1.08)}
 .dm .sq.last{box-shadow:inset 0 0 0 3px rgba(255,255,255,.55)}
+.dm .sq.blow{cursor:pointer}
+.dm .sq.blow .pc{outline:3px dashed #fff;animation:pulse 1s ease-in-out infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(.85)}}
+.dm .sq.blown{box-shadow:inset 0 0 0 4px var(--red)}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.opts.two{grid-template-columns:1fr 1fr}
+.opts button{padding:10px 8px;font-size:15px;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.2}
+.opts button small{font-weight:500;font-size:11.5px;opacity:.85}
 
 /* Damas chinas y puntos y cajas */
 .svgbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px}
@@ -166,6 +175,77 @@ input{font:700 20px var(--body);letter-spacing:.2em;text-transform:uppercase;tex
 .db-ghost{stroke:transparent;stroke-width:2;stroke-dasharray:2 2;pointer-events:none}
 .db-boxA{fill:color-mix(in srgb,var(--red) 35%,transparent)} .db-boxB{fill:color-mix(in srgb,var(--yellow) 45%,transparent)}
 .db-lbl{font:800 7px var(--display);fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+
+/* Basta */
+.bletter{font:800 64px/1 var(--display);text-align:center}
+.bform{gap:10px}
+.bfield{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+input.binput{letter-spacing:0;text-transform:none;text-align:left;font:500 17px var(--body);min-height:44px;padding:8px 12px}
+.bbtn{background:var(--red);font:800 22px var(--display);letter-spacing:.06em;min-height:56px}
+.bhead,.brow{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1fr) minmax(0,1.2fr);gap:8px;align-items:center}
+.bhead{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.brow{border-top:1px solid var(--line);padding-top:8px;font-size:14px}
+.bcat{font-weight:700;font-size:13px}
+.bans{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;min-width:0}
+.bans span{min-width:0;overflow-wrap:anywhere}
+.bans span.bx{text-decoration:line-through;color:var(--muted)}
+.bans i{font-size:11px;color:var(--red)}
+.bans b{font-size:12px;color:var(--ok)}
+.bveto{min-height:28px;padding:3px 8px;font-size:12px;background:transparent;color:var(--red);border:1px solid var(--red)}
+.bveto.on{background:var(--red);color:#fff}
+
+/* Serpientes y escaleras */
+.serp{position:relative;border-radius:12px;overflow:hidden;border:3px solid var(--board)}
+.sgrid{display:grid;grid-template-columns:repeat(10,1fr)}
+.sc{aspect-ratio:1;background:#f6efd9;color:#7a6a45;font:700 clamp(8px,2.4vw,11px) var(--body);padding:2px 3px}
+.sc.alt{background:#e7f0f7;color:#4f6578}
+.sc.goal{background:var(--yellow);color:#4a3200}
+.serp svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.lad line{stroke:#8a5a2b;stroke-width:.9;stroke-linecap:round}
+.snk{fill:none;stroke:#2f9e5b;stroke-width:2.2;stroke-linecap:round;opacity:.9}
+.snkh{fill:#1f7a43}
+.stok{stroke:#fff;stroke-width:.8;transition:cx .5s,cy .5s}
+.stok.A{fill:var(--red)} .stok.B{fill:#e09b00}
+.dicebox{display:flex;align-items:center;gap:14px}
+.dicebox .die{font-size:52px;line-height:1}
+.dicebox button{flex:1}
+
+/* Póker */
+.felt{background:radial-gradient(ellipse at center,#1f7a4d,#145536);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:12px;color:#fff;border:4px solid #5b3a1e}
+.pkseat{display:flex;align-items:center;gap:10px;position:relative}
+.pkseat > div:first-child{flex:1;min-width:0}
+.pkseat b{font:600 16px var(--display)}
+.pkseat small{display:block;opacity:.85;font-size:13px}
+.hand{display:flex;gap:6px}
+.dealer{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#fff;color:#145536;font:800 11px var(--body);vertical-align:middle}
+.chip{background:var(--yellow);color:#4a3200;font:800 13px var(--body);border-radius:999px;padding:3px 9px;border:2px dashed #fff}
+.pkboard{display:flex;justify-content:center;gap:6px}
+.pkpot{text-align:center;margin:0;font-weight:700;font-size:14px}
+.card{width:46px;height:66px;border-radius:7px;background:#fff;color:#1b1b1b;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:0 2px 0 rgba(0,0,0,.3);font-family:var(--display);line-height:1;flex:none}
+.card b{font-size:20px} .card i{font-style:normal;font-size:20px}
+.card.red{color:#d42c2c}
+.card.sm{width:38px;height:54px} .card.sm b,.card.sm i{font-size:16px}
+.card.back{background:repeating-linear-gradient(45deg,#1f4e79 0 6px,#2a6aa3 6px 12px);border:3px solid #fff}
+.card.slot{background:transparent;border:2px dashed rgba(255,255,255,.35);box-shadow:none}
+@media (max-width:370px){.card{width:40px;height:58px}.card b,.card i{font-size:17px}}
+.pkraise{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pkraise button{min-height:44px;font-size:14px;padding:8px}
+.status small{display:block;font:500 14px var(--body);color:var(--muted);margin-top:4px}
+
+/* Picantes */
+.vcard{border-radius:16px;padding:20px 16px;display:flex;flex-direction:column;gap:12px;text-align:center;color:#fff}
+.vcard.verdad{background:linear-gradient(135deg,#6a2c91,#a2387a)}
+.vcard.reto{background:linear-gradient(135deg,#b3263b,#e2583d)}
+.vcard .label{color:rgba(255,255,255,.85)}
+.vtext{font:600 22px/1.3 var(--display);margin:0;text-wrap:balance}
+.vcard small{opacity:.85}
+.vbtn{min-height:72px;font:800 22px var(--display)}
+.vbtn.v{background:#7b3199} .vbtn.r{background:#c8323d}
+.dice3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dice3 div{background:rgba(255,255,255,.16);border-radius:12px;padding:12px 4px;display:flex;flex-direction:column;gap:4px}
+.dice3 span{font:800 18px/1.15 var(--display)}
+.dice3 small{font-size:11px;text-transform:uppercase;letter-spacing:.06em}
 
 .foot{color:var(--muted);font-size:13px;text-align:center;margin:0}
 .conn{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:middle}
@@ -203,8 +283,14 @@ const GAMES={
   damas:{name:'Damas',ic:'⚫',desc:'Captura obligatoria'},
   chinas:{name:'Damas chinas',ic:'⭐',desc:'Cruza la estrella'},
   cajas:{name:'Puntos y cajas',ic:'🔲',desc:'Cierra más cuadros'},
+  basta:{name:'Basta',ic:'🛑',desc:'Nombre, animal, fruta…'},
+  serp:{name:'Serpientes y escaleras',ic:'🐍',desc:'Tira el dado'},
+  poker:{name:'Póker',ic:'🃏',desc:'Texas Hold\'em con fichas'},
+  verdad:{name:'Verdad o reto 🔥',ic:'😈',desc:'Para pareja · 18+',adult:true},
+  dado:{name:'Dado picante',ic:'🎲',desc:'Para pareja · 18+',adult:true},
 };
 let sel=null, selKey=null, navalDraft=null; // selección local (no se comparte)
+let bastaDraft={round:-1,ans:{}}, bastaSent=-1;
 
 /* ================= Reglas ================= */
 function lineWin(b,cols,rows,need){
@@ -230,12 +316,17 @@ function initGame(game,prev){
   if(game==='naval')return {starter,turn:starter,phase:'placing',ready:{A:false,B:false},fleet:{A:null,B:null},shots:{A:'.'.repeat(64),B:'.'.repeat(64)},last:{A:null,B:null},status:'playing',winner:null};
   if(game==='damas'){
     let b='';for(let r=0;r<8;r++)for(let c=0;c<8;c++)b+=(r+c)%2===1?(r<3?'b':r>4?'a':'.'):'.';
-    return {board:b,turn:starter,starter,chain:null,last:null,status:'playing',winner:null};
+    return {board:b,turn:starter,starter,chain:null,last:null,soplo:null,phase:'setup',rules:{...(prev&&prev.rules||S&&S.dmRules||DM_DEFAULT)},status:'playing',winner:null};
   }
   if(game==='chinas'){
     let b='';CC.cells.forEach(cl=>b+=cl.r>=13?'A':cl.r<=3?'B':'.');
     return {board:b,turn:starter,starter,last:null,status:'playing',winner:null};
   }
+  if(game==='basta')return bastaRound(prev);
+  if(game==='poker'){const G={stack:{A:1000,B:1000},dealer:starter,starter,hand:0,status:'playing',winner:null};pkNewHand(G);return G}
+  if(game==='verdad')return {level:prev&&prev.level||'suave',turn:starter,starter,phase:'choose',card:null,used:{},count:0,status:'playing',winner:null};
+  if(game==='dado')return {level:prev&&prev.level||'suave',turn:starter,starter,roll:null,count:0,status:'playing',winner:null};
+  if(game==='serp')return {pos:{A:0,B:0},turn:starter,starter,roll:null,lastMove:null,status:'playing',winner:null,moves:0};
   if(game==='cajas')return {h:'.'.repeat(20),v:'.'.repeat(20),box:'.'.repeat(16),pts:{A:0,B:0},turn:starter,starter,last:null,status:'playing',winner:null};
 }
 function newRoom(){const score={};Object.keys(GAMES).forEach(k=>score[k]={A:0,B:0});return {game:null,v:0,g:{},score}}
@@ -276,23 +367,48 @@ const shipSunk=(ship,shots)=>ship.every(i=>shots[i]==='x');
 
 /* --- Damas --- */
 const dmOwner=ch=>ch==='.'?null:(ch.toLowerCase()==='a'?'A':'B');
-function dmMoves(G,p){
-  const b=G.board, caps=[], steps=[];
-  const fwd=p==='A'?-1:1;
+const DM_DEFAULT={capture:'oblig',back:false,flying:false};
+const DM_ALL=[[-1,-1],[-1,1],[1,-1],[1,1]];
+function dmGen(G,p){
+  const b=G.board, R=G.rules||DM_DEFAULT, caps=[], steps=[], fwd=p==='A'?-1:1;
+  const inb=(r,c)=>r>=0&&r<=7&&c>=0&&c<=7;
   for(let i=0;i<64;i++){
     if(dmOwner(b[i])!==p)continue;
     if(G.chain!=null&&G.chain!==i)continue;
     const r=i>>3,c=i&7, king=b[i]===b[i].toUpperCase();
-    const dirs=king?[[-1,-1],[-1,1],[1,-1],[1,1]]:[[fwd,-1],[fwd,1]];
-    for(const [dr,dc] of dirs){
-      const r1=r+dr,c1=c+dc,r2=r+2*dr,c2=c+2*dc;
-      if(r1<0||r1>7||c1<0||c1>7)continue;
-      const m=r1*8+c1;
-      if(b[m]==='.'){if(G.chain==null)steps.push({from:i,to:m,cap:null});continue}
-      if(dmOwner(b[m])!==p&&r2>=0&&r2<=7&&c2>=0&&c2<=7&&b[r2*8+c2]==='.')caps.push({from:i,to:r2*8+c2,cap:m});
+    if(king&&R.flying){
+      for(const [dr,dc] of DM_ALL){
+        let k=1;
+        while(inb(r+dr*k,c+dc*k)&&b[(r+dr*k)*8+c+dc*k]==='.'){if(G.chain==null)steps.push({from:i,to:(r+dr*k)*8+c+dc*k,cap:null});k++}
+        if(!inb(r+dr*k,c+dc*k))continue;
+        const m=(r+dr*k)*8+c+dc*k; if(dmOwner(b[m])===p)continue;
+        let j=k+1;
+        while(inb(r+dr*j,c+dc*j)&&b[(r+dr*j)*8+c+dc*j]==='.'){caps.push({from:i,to:(r+dr*j)*8+c+dc*j,cap:m});j++}
+      }
+      continue;
+    }
+    const stepDirs=king?DM_ALL:[[fwd,-1],[fwd,1]];
+    const capDirs=king||R.back?DM_ALL:[[fwd,-1],[fwd,1]];
+    if(G.chain==null)for(const [dr,dc] of stepDirs){
+      if(inb(r+dr,c+dc)&&b[(r+dr)*8+c+dc]==='.')steps.push({from:i,to:(r+dr)*8+c+dc,cap:null});
+    }
+    for(const [dr,dc] of capDirs){
+      if(!inb(r+2*dr,c+2*dc))continue;
+      const m=(r+dr)*8+c+dc, l=(r+2*dr)*8+c+2*dc;
+      if(b[m]!=='.'&&dmOwner(b[m])!==p&&b[l]==='.')caps.push({from:i,to:l,cap:m});
     }
   }
-  return caps.length?caps:steps;
+  return {caps,steps};
+}
+function dmMoves(G,p){
+  const {caps,steps}=dmGen(G,p);
+  if(G.chain!=null)return caps;
+  if((G.rules||DM_DEFAULT).capture==='oblig'&&caps.length)return caps;
+  return caps.concat(steps);
+}
+function dmRulesText(R){
+  return (R.capture==='oblig'?'Comer obligatorio':R.capture==='soplar'?'Se vale soplar':'Comer libre')+
+    ' · '+(R.back?'Peones comen hacia atrás':'Peones comen solo adelante')+' · '+(R.flying?'Dama voladora':'Dama de 1 casilla');
 }
 
 /* --- Damas chinas: estrella de 121 casillas --- */
@@ -318,6 +434,122 @@ function ccReach(b,from){
   return out;
 }
 function ccWon(b,p){const g=CC.goal[p];return g.every(i=>b[i]!=='.')&&g.some(i=>b[i]===p)}
+
+/* --- Basta --- */
+const BASTA_CATS=['Nombre','Apellido','Ciudad o país','Animal','Fruta o verdura','Color','Cosa'];
+const BASTA_LETTERS='ABCDEFGHIJLMNOPRSTV';
+function bastaRound(prev){
+  const used=prev&&prev.used?prev.used:'';
+  let pool=[...BASTA_LETTERS].filter(l=>!used.includes(l)); if(!pool.length)pool=[...BASTA_LETTERS];
+  const letter=pool[Math.floor(Math.random()*pool.length)];
+  if(prev&&prev.roundPts&&!prev.counted){
+    prev.counted=true;
+    prev.total={A:prev.total.A+prev.roundPts.A,B:prev.total.B+prev.roundPts.B};
+    if(S&&prev.roundPts.A!==prev.roundPts.B)S.score.basta[prev.roundPts.A>prev.roundPts.B?'A':'B']++;
+  }
+  return {round:(prev?prev.round:0)+1,letter,used:(pool.length===BASTA_LETTERS.length?'':used)+letter,phase:'writing',
+    ans:{A:null,B:null},veto:{A:[],B:[]},stopper:null,total:prev&&prev.total?{...prev.total}:{A:0,B:0},pts:null,status:'playing',winner:null};
+}
+const normWord=w=>String(w||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-zñ ]/g,'').replace(/\s+/g,' ').trim();
+function bastaScore(G){
+  const pts={A:Array(BASTA_CATS.length).fill(0),B:Array(BASTA_CATS.length).fill(0)};
+  const L=G.letter.toLowerCase();
+  const ok=(p,k)=>{const w=normWord(G.ans[p]&&G.ans[p][k]);return w.length>1&&w[0]===L&&!G.veto[other(p)].includes(k)};
+  BASTA_CATS.forEach((_,k)=>{
+    const a=ok('A',k),b=ok('B',k), same=a&&b&&normWord(G.ans.A[k])===normWord(G.ans.B[k]);
+    if(a)pts.A[k]=same?50:100; if(b)pts.B[k]=same?50:100;
+  });
+  return pts;
+}
+function bastaFinish(G){
+  G.pts=bastaScore(G);
+  const sum=p=>G.pts[p].reduce((x,y)=>x+y,0);
+  G.roundPts={A:sum('A'),B:sum('B')};
+}
+
+/* --- Póker Texas Hold'em (2 jugadores) --- */
+const PK_SB=10, PK_BB=20, PK_R='23456789TJQKA';
+const PK_NAMES=['Carta alta','Par','Doble par','Trío','Escalera','Color','Full','Póker','Escalera de color'];
+function pkDeck(){const d=[];for(const r of PK_R)for(const s of 'shdc')d.push(r+s);
+  for(let i=d.length-1;i>0;i--){const a=new Uint32Array(1);crypto.getRandomValues(a);const j=a[0]%(i+1);[d[i],d[j]]=[d[j],d[i]]}return d}
+function pkRank5(cs){
+  const v=cs.map(c=>PK_R.indexOf(c[0])).sort((a,b)=>b-a), fl=cs.every(c=>c[1]===cs[0][1]);
+  const cnt={};v.forEach(x=>cnt[x]=(cnt[x]||0)+1);
+  const groups=Object.entries(cnt).map(([x,n])=>[n,+x]).sort((a,b)=>b[0]-a[0]||b[1]-a[1]);
+  const uniq=[...new Set(v)]; let st=-1;
+  if(uniq.length===5){if(uniq[0]-uniq[4]===4)st=uniq[0];else if(uniq.join()==='12,3,2,1,0')st=3}
+  if(st>=0&&fl)return [8,st];
+  if(groups[0][0]===4)return [7,groups[0][1],groups[1][1]];
+  if(groups[0][0]===3&&groups[1][0]===2)return [6,groups[0][1],groups[1][1]];
+  if(fl)return [5,...v];
+  if(st>=0)return [4,st];
+  if(groups[0][0]===3)return [3,groups[0][1],...groups.slice(1).map(g=>g[1])];
+  if(groups[0][0]===2&&groups[1][0]===2)return [2,groups[0][1],groups[1][1],groups[2][1]];
+  if(groups[0][0]===2)return [1,groups[0][1],...groups.slice(1).map(g=>g[1])];
+  return [0,...v];
+}
+const pkCmp=(a,b)=>{for(let i=0;i<Math.max(a.length,b.length);i++){const d=(a[i]||0)-(b[i]||0);if(d)return d}return 0};
+function pkBest(cards){
+  let best=null;
+  for(let a=0;a<cards.length;a++)for(let b=a+1;b<cards.length;b++){
+    const five=cards.filter((_,i)=>i!==a&&i!==b); const r=pkRank5(five); if(!best||pkCmp(r,best)>0)best=r;
+  }
+  return best;
+}
+function pkNewHand(G){
+  G.hand++; const d=pkDeck();
+  G.hole={A:[d.pop(),d.pop()],B:[d.pop(),d.pop()]}; G.board=[]; G.deck=d;
+  G.pot=0; G.bet={A:0,B:0}; G.street=0; G.acted={A:false,B:false}; G.minRaise=PK_BB; G.phase='betting'; G.result=null; G.lastAct=null;
+  const post=(p,amt)=>{const x=Math.min(amt,G.stack[p]);G.stack[p]-=x;G.bet[p]+=x};
+  post(G.dealer,PK_SB); post(other(G.dealer),PK_BB);
+  G.toAct=G.dealer;
+  if(G.stack.A===0||G.stack.B===0)pkCloseStreet(G);
+}
+function pkCloseStreet(G){
+  if(G.bet.A!==G.bet.B){const big=G.bet.A>G.bet.B?'A':'B',diff=Math.abs(G.bet.A-G.bet.B);G.bet[big]-=diff;G.stack[big]+=diff}
+  G.pot+=G.bet.A+G.bet.B; G.bet={A:0,B:0}; G.acted={A:false,B:false}; G.minRaise=PK_BB;
+  if(G.stack.A===0||G.stack.B===0){while(G.board.length<5)G.board.push(G.deck.pop());return pkShowdown(G)}
+  if(G.street===3)return pkShowdown(G);
+  G.street++; G.board.push(...(G.street===1?[G.deck.pop(),G.deck.pop(),G.deck.pop()]:[G.deck.pop()]));
+  G.toAct=other(G.dealer);
+}
+function pkShowdown(G){
+  const ra=pkBest([...G.hole.A,...G.board]), rb=pkBest([...G.hole.B,...G.board]), c=pkCmp(ra,rb);
+  let w=c>0?'A':c<0?'B':'split';
+  if(w==='split'){const half=Math.floor(G.pot/2);G.stack.A+=half;G.stack.B+=half;const odd=G.pot-2*half;if(odd)G.stack[other(G.dealer)]+=odd}
+  else G.stack[w]+=G.pot;
+  G.result={winner:w,pot:G.pot,show:true,names:{A:PK_NAMES[ra[0]],B:PK_NAMES[rb[0]]}};
+  G.pot=0; pkEndHand(G);
+}
+function pkEndHand(G){
+  G.phase='handover'; G.toAct=null;
+  if(G.stack.A===0||G.stack.B===0){G.status='done';G.winner=G.stack.A===0?'B':'A';S.score.poker[G.winner]++}
+}
+
+/* --- Juegos picantes (18+) --- */
+const VR={
+  suave:{
+    verdad:['¿Qué fue lo primero que te atrajo de mí?','¿Cuál ha sido nuestra cita favorita y por qué?','¿Qué parte de mi cuerpo te gusta más?','¿Qué es lo más romántico que te gustaría que hiciera por ti?','¿Cuándo fue la primera vez que pensaste en besarme?','¿Qué ropa mía te gusta más verme puesta?','¿Cuál es tu recuerdo favorito de nosotros dos?','¿Qué canción te hace pensar en mí?','¿Qué es lo que más te gusta de cómo te abrazo?','¿Qué cumplido mío nunca olvidas?'],
+    reto:['Dame un beso en la mejilla y otro en el cuello.','Mírame a los ojos 30 segundos sin reírte.','Dame un masaje en los hombros por 1 minuto.','Susúrrame al oído algo que te guste de mí.','Bésame la mano como en una película de época.','Abrázame por la espalda durante 30 segundos.','Dime tres cosas que te encanten de mí, viéndome a los ojos.','Baila conmigo una canción lenta.','Dame el beso más tierno que puedas.','Hazme cosquillas por 15 segundos (y aguanta las mías).'],
+  },
+  picante:{
+    verdad:['¿Cuál es tu fantasía romántica que aún no me has contado?','¿Qué es lo que más te prende de mí?','¿Dónde te gustaría que te besara y no lo he hecho?','¿Cuál ha sido nuestro momento más intenso?','¿Qué prenda mía te gustaría quitarme primero?','¿Prefieres que te seduzca lento o que vaya directo?','¿Qué lugar fuera de casa te parece emocionante para besarnos?','¿Qué te gustaría que te dijera al oído?','¿Cuál es tu parte favorita de mi cuerpo para acariciar?','¿Te gusta más dar o recibir masajes? ¿Por qué?'],
+    reto:['Quítate una prenda de tu elección.','Dame un beso de 20 segundos.','Dame un masaje en la espalda por 2 minutos.','Bésame el cuello lentamente durante 15 segundos.','Hazme un baile sensual de 30 segundos.','Muérdeme suavemente la oreja.','Recorre mi brazo con besos, de la mano al hombro.','Siéntate en mis piernas hasta tu próximo turno.','Quítame una prenda (yo elijo cuál).','Dime al oído lo que me harías esta noche.'],
+  },
+  atrevido:{
+    verdad:['¿Cuál es la fantasía más atrevida que te gustaría cumplir conmigo?','¿Qué es lo que más te gusta que te haga en la intimidad?','¿Hay algo nuevo que te gustaría probar juntos?','¿Cuál ha sido el lugar más arriesgado donde has querido hacerlo?','¿Qué te gustaría que hiciera más seguido?','¿Qué palabra o frase mía te enciende al instante?','¿Prefieres la luz prendida o apagada? ¿Por qué?','¿Cuál es tu recuerdo íntimo favorito conmigo?'],
+    reto:['Quítame una prenda usando solo la boca.','Véndame los ojos y sorpréndeme con besos durante 1 minuto.','Hazme un striptease de una canción completa.','Bésame donde yo te indique durante 30 segundos.','Dame un masaje con aceite o crema donde yo elija por 2 minutos.','Recorre mi abdomen con besos de arriba abajo.','Quítate dos prendas, lentamente.','Elige una parte de mi cuerpo y bésala 30 segundos.','Durante 1 minuto haz lo que yo te pida (con respeto).','Susúrrame tu fantasía mientras me acaricias.'],
+  },
+};
+const DADO={
+  suave:{acc:['Besar','Acariciar','Masajear','Soplar suave','Abrazar','Hacer cosquillas'],zona:['Cuello','Labios','Mejilla','Manos','Espalda','Orejas']},
+  atrevido:{acc:['Besar','Lamer','Mordisquear','Acariciar','Masajear','Soplar suave'],zona:['Cuello','Labios','Orejas','Abdomen','Muslos','Donde tú elijas']},
+};
+const DADO_T=[10,15,20,30,45,60];
+
+/* --- Serpientes y escaleras --- */
+const SERP_LADDERS={1:38,4:14,9:31,21:42,28:84,36:44,51:67,71:91,80:100};
+const SERP_SNAKES={16:6,47:26,49:11,56:53,62:19,64:60,87:24,93:73,95:75,98:78};
 
 /* --- Puntos y cajas (4x4 cuadros) --- */
 function cajaDone(G,r,c){return G.h[r*4+c]!=='.'&&G.h[(r+1)*4+c]!=='.'&&G.v[r*5+c]!=='.'&&G.v[r*5+c+1]!=='.'}
@@ -399,28 +631,130 @@ function act(p,a){
       return commit();
     }
   }
-  if(S.game==='damas'&&a.k==='dm'){
-    if(G.status!=='playing'||G.turn!==p)return;
-    const mv=dmMoves(G,p).find(m=>m.from===a.from&&m.to===a.to); if(!mv)return;
-    const b=G.board.split('');
-    let piece=b[mv.from]; b[mv.from]='.'; if(mv.cap!=null)b[mv.cap]='.';
-    const r=mv.to>>3, promote=piece===piece.toLowerCase()&&((p==='A'&&r===0)||(p==='B'&&r===7));
-    if(promote)piece=piece.toUpperCase();
-    b[mv.to]=piece; G.board=b.join(''); G.last=[mv.from,mv.to];
-    G.chain=null;
-    if(mv.cap!=null&&!promote){
-      G.chain=mv.to;
-      if(!dmMoves(G,p).some(m=>m.cap!=null))G.chain=null;
+  if(S.game==='damas'){
+    const dmEndTurn=()=>{
+      G.chain=null; G.turn=other(p);
+      const left=[...G.board].some(ch=>dmOwner(ch)===G.turn);
+      if(!left||(!dmMoves(G,G.turn).length&&!(G.soplo&&G.soplo.length))){G.status='done';G.winner=p;S.score.damas[p]++}
+    };
+    if(a.k==='dmrules'&&G.phase==='setup'){
+      const R=a.rules||{};
+      G.rules={capture:['oblig','libre','soplar'].includes(R.capture)?R.capture:'oblig',back:!!R.back,flying:!!R.flying};
+      S.dmRules={...G.rules}; return commit();
     }
-    if(G.chain==null)G.turn=other(p);
-    if(G.chain==null&&!dmMoves(G,G.turn).length){G.status='done';G.winner=p;S.score.damas[p]++}
-    return commit();
+    if(a.k==='dmstart'&&G.phase==='setup'){G.phase='playing';return commit()}
+    if(G.phase!=='playing'||G.status!=='playing'||G.turn!==p)return;
+    if(a.k==='soplar'){
+      const i=a.i|0; if(G.chain!=null||!G.soplo||!G.soplo.includes(i)||dmOwner(G.board[i])!==other(p))return;
+      G.board=G.board.slice(0,i)+'.'+G.board.slice(i+1); G.soplo=null; G.blown=i;
+      if(![...G.board].some(ch=>dmOwner(ch)===other(p))){G.status='done';G.winner=p;S.score.damas[p]++}
+      else if(!dmMoves(G,p).length){G.status='done';G.winner=other(p);S.score.damas[other(p)]++}
+      return commit();
+    }
+    if(a.k==='dmend'){
+      if(G.chain==null||G.rules.capture==='oblig')return;
+      dmEndTurn(); return commit();
+    }
+    if(a.k==='dm'){
+      const mv=dmMoves(G,p).find(m=>m.from===a.from&&m.to===a.to); if(!mv)return;
+      const wasChain=G.chain!=null;
+      const capturers=(G.rules.capture==='soplar'&&!wasChain)?new Set(dmGen(G,p).caps.map(m=>m.from)):new Set();
+      G.soplo=null; G.blown=null;
+      const b=G.board.split('');
+      let piece=b[mv.from]; b[mv.from]='.'; if(mv.cap!=null)b[mv.cap]='.';
+      const r=mv.to>>3, promote=piece===piece.toLowerCase()&&((p==='A'&&r===0)||(p==='B'&&r===7));
+      if(promote)piece=piece.toUpperCase();
+      b[mv.to]=piece; G.board=b.join(''); G.last=[mv.from,mv.to];
+      G.chain=null;
+      if(mv.cap!=null&&!promote){G.chain=mv.to; if(!dmGen(G,p).caps.length)G.chain=null}
+      if(G.chain==null){
+        if(mv.cap==null&&capturers.size){
+          G.soplo=[...capturers].map(i=>i===mv.from?mv.to:i).filter(i=>dmOwner(G.board[i])===p);
+        }
+        dmEndTurn();
+      }
+      return commit();
+    }
   }
   if(S.game==='chinas'&&a.k==='cc'){
     if(G.status!=='playing'||G.turn!==p)return;
     const f=a.from|0,t=a.to|0; if(G.board[f]!==p||!ccReach(G.board,f).has(t))return;
     const b=G.board.split(''); b[f]='.'; b[t]=p; G.board=b.join(''); G.last=[f,t];
     if(ccWon(G.board,p)){G.status='done';G.winner=p;S.score.chinas[p]++}
+    else G.turn=other(p);
+    return commit();
+  }
+  if(S.game==='basta'){
+    const clean=ans=>BASTA_CATS.map((_,k)=>String((ans&&ans[k])||'').slice(0,40));
+    if(a.k==='basta'&&G.phase==='writing'){
+      const ans=clean(a.ans); if(ans.some(w=>!normWord(w)))return;
+      G.ans[p]=ans; G.stopper=p; G.phase='stopping'; return commit();
+    }
+    if(a.k==='answers'&&G.phase==='stopping'&&!G.ans[p]){
+      G.ans[p]=clean(a.ans);
+      if(G.ans.A&&G.ans.B){G.phase='review';G.status='done';G.winner=null;bastaFinish(G)}
+      return commit();
+    }
+    if(a.k==='veto'&&G.phase==='review'){
+      const k=a.i|0; if(k<0||k>=BASTA_CATS.length)return;
+      const v=G.veto[p]; G.veto[p]=v.includes(k)?v.filter(x=>x!==k):[...v,k];
+      bastaFinish(G); return commit();
+    }
+    return;
+  }
+  if(a.k==='adult'&&GAMES[S.game].adult){S.adult=S.adult||{A:false,B:false};S.adult[p]=true;return commit()}
+  if(S.game==='poker'){
+    if(a.k==='pknext'&&G.phase==='handover'&&G.status==='playing'){G.dealer=other(G.dealer);pkNewHand(G);return commit()}
+    if(G.phase!=='betting'||G.toAct!==p)return;
+    const o=other(p);
+    if(a.k==='fold'){
+      G.pot+=G.bet.A+G.bet.B; G.bet={A:0,B:0}; G.stack[o]+=G.pot;
+      G.result={winner:o,pot:G.pot,show:false,fold:p}; G.pot=0; G.lastAct={p,t:'fold'}; pkEndHand(G); return commit();
+    }
+    if(a.k==='check'){if(G.bet[p]!==G.bet[o])return; G.acted[p]=true; G.lastAct={p,t:'check'}}
+    else if(a.k==='call'){
+      const x=Math.min(G.bet[o]-G.bet[p],G.stack[p]); if(x<=0)return;
+      G.stack[p]-=x; G.bet[p]+=x; G.acted[p]=true; G.lastAct={p,t:'call',x};
+      if(G.bet[p]<G.bet[o]){pkCloseStreet(G);return commit()}      // pagó todo lo que tenía
+    }
+    else if(a.k==='raise'){
+      const to=Math.floor(a.to), maxTo=G.bet[p]+G.stack[p], minTo=G.bet[o]+G.minRaise;
+      if(!(to>G.bet[o])||to>maxTo||(to<minTo&&to!==maxTo)||G.stack[o]===0)return;
+      G.minRaise=Math.max(G.minRaise,to-G.bet[o]); G.stack[p]-=to-G.bet[p]; G.bet[p]=to;
+      G.acted[p]=true; G.acted[o]=false; G.lastAct={p,t:to===maxTo?'allin':'raise',x:to};
+    }else return;
+    if(G.bet.A===G.bet.B&&(G.acted.A&&G.acted.B||G.stack[o]===0))pkCloseStreet(G);
+    else G.toAct=o;
+    return commit();
+  }
+  if(S.game==='verdad'){
+    if(!S.adult||!S.adult.A||!S.adult.B)return;
+    if(a.k==='vlevel'&&VR[a.level]&&G.phase==='choose'){G.level=a.level;return commit()}
+    if(a.k==='vpick'&&G.phase==='choose'&&G.turn===p&&(a.t==='verdad'||a.t==='reto')){
+      const list=VR[G.level][a.t], key=G.level+a.t, used=G.used[key]||[];
+      let pool=list.map((_,i)=>i).filter(i=>!used.includes(i)); if(!pool.length){pool=list.map((_,i)=>i);G.used[key]=[]}
+      const i=pool[Math.floor(Math.random()*pool.length)];
+      G.used[key]=[...(G.used[key]||[]),i]; G.card={t:a.t,text:list[i],level:G.level,who:p}; G.phase='card'; return commit();
+    }
+    if(a.k==='vdone'&&G.phase==='card'&&G.turn===p){G.lastDone={who:p,skip:!!a.skip,t:G.card.t};G.phase='choose';G.card=null;G.count++;G.turn=other(p);return commit()}
+    return;
+  }
+  if(S.game==='dado'){
+    if(!S.adult||!S.adult.A||!S.adult.B)return;
+    if(a.k==='dlevel'&&DADO[a.level]){G.level=a.level;return commit()}
+    if(a.k==='droll'&&G.turn===p){
+      const L=DADO[G.level], r=n=>Math.floor(Math.random()*n);
+      G.roll={who:p,acc:L.acc[r(6)],zona:L.zona[r(6)],t:DADO_T[r(6)],n:G.count+1}; G.count++; G.turn=other(p); return commit();
+    }
+    return;
+  }
+  if(S.game==='serp'&&a.k==='roll'){
+    if(G.status!=='playing'||G.turn!==p)return;
+    const d=1+Math.floor(Math.random()*6), from=G.pos[p];
+    let mid=from+d; if(mid>100)mid=from;
+    const to=SERP_LADDERS[mid]||SERP_SNAKES[mid]||mid;
+    G.pos[p]=to; G.roll=d; G.moves++; G.lastMove={p,from,mid,to,d};
+    if(to===100){G.status='done';G.winner=p;S.score.serp[p]++}
     else G.turn=other(p);
     return commit();
   }
@@ -571,7 +905,7 @@ function render(){
   if(!S.game)return renderMenu();
   const k=S.game+':'+S.v; if(selKey!==null&&selKey.split(':')[0]!==S.game)navalDraft=null;
   if(selKey!==k){sel=null;selKey=k}
-  ({c4:renderC4,gato:renderGato,ppt:renderPpt,ahor:renderAhor,naval:renderNaval,damas:renderDamas,chinas:renderChinas,cajas:renderCajas})[S.game]();
+  ({c4:renderC4,gato:renderGato,ppt:renderPpt,ahor:renderAhor,naval:renderNaval,damas:renderDamas,chinas:renderChinas,cajas:renderCajas,basta:renderBasta,serp:renderSerp,poker:renderPoker,verdad:renderVerdad,dado:renderDado})[S.game]();
 }
 
 function renderMenu(){
@@ -580,7 +914,7 @@ function renderMenu(){
     <div class="games">${Object.entries(GAMES).map(([k,g])=>{
       const sc=S.score[k];
       return `<button class="game" data-g="${k}" ${connected?'':'disabled'}><span class="ic">${g.ic}</span><b>${g.name}</b>
-      <small>${g.desc}</small><small>Tú ${sc[me]} – ${sc[other(me)]} Rival</small></button>`}).join('')}</div>
+      <small>${g.desc}</small>${g.adult?'':`<small>Tú ${sc[me]} – ${sc[other(me)]} Rival</small>`}</button>`}).join('')}</div>
     <p class="msg center">Cualquiera de los dos puede elegir.</p>
     <button class="ghost" id="leave">Salir de la sala</button>
     ${footer()}
@@ -593,7 +927,7 @@ function renderMenu(){
 function head(title){
   const sc=S.score[S.game];
   return `<div class="ghead"><h2>${title}</h2><button class="ghost" id="menu">☰ Juegos</button></div>
-  <p class="msg center">Marcador: Tú ${sc[me]} – ${sc[other(me)]} Rival</p>`;
+  ${GAMES[S.game].adult?'':`<p class="msg center">Marcador: Tú ${sc[me]} – ${sc[other(me)]} Rival</p>`}`;
 }
 function tail(G){
   return `<div class="row">${G.status==='done'&&connected?'<button id="again">Otra vez</button>':''}</div>${footer()}`;
@@ -809,8 +1143,31 @@ function renderNaval(){
 
 /* ---- Damas ---- */
 function renderDamas(){
-  const G=S.g.damas, myTurn=G.status==='playing'&&G.turn===me&&connected;
+  const G=S.g.damas;
+  if(G.phase==='setup'){
+    const R=G.rules, opt=(name,val,label,desc)=>{
+      const on=R[name]===val;
+      return `<button class="${on?'':'ghost'} dmopt" data-n="${name}" data-v="${JSON.stringify(val).replace(/"/g,'&quot;')}" ${connected?'':'disabled'} aria-pressed="${on}">${label}${desc?`<small>${desc}</small>`:''}</button>`};
+    view.innerHTML=`<div class="stack">${head('⚫ Damas')}
+      <section class="panel"><h2>Reglas de la partida</h2>
+        <p class="msg">Cualquiera de los dos puede cambiarlas. Las ven los dos al mismo tiempo.</p>
+        <div class="label">Comer</div>
+        <div class="opts">${opt('capture','oblig','Obligatorio','Si puedes comer, tienes que comer')}${opt('capture','libre','Libre','Comes solo si quieres')}${opt('capture','soplar','Soplar','Si no come pudiendo, le quitas la ficha')}</div>
+        <div class="label">Los peones comen hacia atrás</div>
+        <div class="opts two">${opt('back',false,'No')}${opt('back',true,'Sí')}</div>
+        <div class="label">Dama coronada</div>
+        <div class="opts two">${opt('flying',false,'1 casilla','Se mueve de una en una')}${opt('flying',true,'Voladora','Avanza varias casillas')}</div>
+      </section>
+      <button id="dmstart" ${connected?'':'disabled'}>Empezar partida</button>
+      ${footer()}</div>`;
+    view.querySelectorAll('.dmopt').forEach(b=>b.onclick=()=>{
+      const nr={...G.rules,[b.dataset.n]:JSON.parse(b.dataset.v)}; doAct({k:'dmrules',rules:nr})});
+    document.getElementById('dmstart').onclick=()=>doAct({k:'dmstart'});
+    wireCommon(); return;
+  }
+  const myTurn=G.status==='playing'&&G.turn===me&&connected;
   const moves=myTurn?dmMoves(G,me):[];
+  const blowable=new Set(myTurn&&G.chain==null&&G.soplo?G.soplo:[]);
   if(G.chain!=null&&myTurn)sel=G.chain;
   const movable=new Set(moves.map(m=>m.from));
   const targets=new Set(moves.filter(m=>m.from===sel).map(m=>m.to));
@@ -821,23 +1178,36 @@ function renderDamas(){
     const i=flip?63-k:k, ch=G.board[i], o=dmOwner(ch), dk=((i>>3)+(i&7))%2===1;
     let cls='sq'+(dk?' dk':'');
     if(movable.has(i))cls+=' mov'; if(sel===i)cls+=' sel'; if(targets.has(i))cls+=' tgt'; if(last.has(i))cls+=' last';
+    if(blowable.has(i))cls+=' blow'; if(G.blown===i)cls+=' blown';
     const pc=o?`<span class="pc ${o}">${ch===ch.toUpperCase()?'♛':''}</span>`:'';
-    sq+=(movable.has(i)||targets.has(i))?`<button class="${cls}" data-i="${i}">${pc}</button>`:`<div class="${cls}">${pc}</div>`;
+    const tap=movable.has(i)||targets.has(i)||blowable.has(i);
+    sq+=tap?`<button class="${cls}" data-i="${i}">${pc}</button>`:`<div class="${cls}">${pc}</div>`;
   }
   const count=p=>[...G.board].filter(ch=>dmOwner(ch)===p).length;
+  const R=G.rules;
   let status=turnText(G);
-  if(myTurn&&moves.some(m=>m.cap!=null))status=G.chain!=null?'¡Sigue comiendo!':'Te toca: tienes que comer';
+  if(myTurn){
+    if(G.chain!=null)status=R.capture==='oblig'?'¡Sigue comiendo!':'Puedes seguir comiendo';
+    else if(blowable.size)status='Tu rival no comió: ¡puedes soplarle!';
+    else if(R.capture==='oblig'&&moves.some(m=>m.cap!=null))status='Te toca: tienes que comer';
+  }else if(G.status==='playing'&&connected&&G.soplo&&G.soplo.length)status='No comiste… tu rival puede soplarte';
+  const endBtn=myTurn&&G.chain!=null&&R.capture!=='oblig'?'<button class="ghost" id="dmend">Terminar mi turno</button>':'';
+  const blowHint=blowable.size?'<p class="msg center">Toca la ficha marcada del rival para quitársela, o juega normal.</p>':'';
   view.innerHTML=`<div class="stack">${head('⚫ Damas')}
     ${playersBar(G,'<span class="disc A" style="width:22px;height:22px"></span>','<span class="disc B" style="width:22px;height:22px"></span>')}
     <p class="status" aria-live="polite">${status}</p>
+    ${blowHint}
     <div class="dm">${sq}</div>
-    <p class="msg center">Fichas: tú ${count(me)} · rival ${count(other(me))}. Comer es obligatorio; al llegar al fondo te coronas ♛.</p>
+    ${endBtn}
+    <p class="msg center">Fichas: tú ${count(me)} · rival ${count(other(me))}<br>${dmRulesText(R)}</p>
     ${tail(G)}</div>`;
   view.querySelectorAll('.dm button').forEach(b=>b.onclick=()=>{
     const i=+b.dataset.i;
-    if(targets.has(i))doAct({k:'dm',from:sel,to:i});
+    if(blowable.has(i))doAct({k:'soplar',i});
+    else if(targets.has(i))doAct({k:'dm',from:sel,to:i});
     else if(G.chain==null){sel=sel===i?null:i;render()}
   });
+  const eb=document.getElementById('dmend'); if(eb)eb.onclick=()=>doAct({k:'dmend'});
   wireCommon();
 }
 
@@ -902,6 +1272,208 @@ function renderCajas(){
     <p class="msg center">Toca entre dos puntos para trazar una línea. Si cierras un cuadro es tuyo y vuelves a tirar.</p>
     ${tail(G)}</div>`;
   view.querySelectorAll('.db-hit').forEach(el=>el.addEventListener('click',()=>doAct({k:'line',t:el.dataset.t,i:+el.dataset.i})));
+  wireCommon();
+}
+
+/* ---- Basta ---- */
+function renderBasta(){
+  const G=S.g.basta, op=other(me);
+  if(bastaDraft.round!==G.round)bastaDraft={round:G.round,ans:{}};
+  const tot=p=>G.total[p]+(G.phase==='review'?G.roundPts[p]:0);
+  let body='';
+  if(G.phase==='writing'){
+    const filled=BASTA_CATS.every((_,k)=>normWord(bastaDraft.ans[k]));
+    body=`<section class="panel"><div class="label center">Letra</div><div class="bletter">${G.letter}</div>
+      <p class="msg center">Escribe una palabra con <b>${G.letter}</b> en cada casilla. Cuando llenes todas, grita ¡Basta!</p></section>
+      <section class="panel bform">${BASTA_CATS.map((c,k)=>`<label class="bfield"><span>${c}</span>
+        <input class="binput" id="b${k}" data-k="${k}" autocomplete="off" autocapitalize="words" maxlength="40" value="${esc(bastaDraft.ans[k]||'')}" placeholder="${G.letter}…"></label>`).join('')}</section>
+      <button id="basta" class="bbtn" ${filled&&connected?'':'disabled'}>¡BASTA!</button>`;
+  }else if(G.phase==='stopping'){
+    if(!G.ans[me]&&bastaSent!==G.round){bastaSent=G.round;const ans=BASTA_CATS.map((_,k)=>bastaDraft.ans[k]||'');setTimeout(()=>doAct({k:'answers',ans}),0)}
+    body=`<section class="panel"><div class="bletter">🛑</div><p class="status">¡${G.stopper===me?'Dijiste':'Tu rival dijo'} BASTA!</p><p class="msg center">Juntando las respuestas…</p></section>`;
+  }else{
+    const L=G.letter.toLowerCase();
+    const rows=BASTA_CATS.map((c,k)=>{
+      const mine=G.ans[me][k]||'', his=G.ans[op][k]||'', vetoed=G.veto[me].includes(k), myVetoed=G.veto[op].includes(k);
+      const hisOk=normWord(his).length>1&&normWord(his)[0]===L;
+      return `<div class="brow"><div class="bcat">${c}</div>
+        <div class="bans"><span class="${G.pts[me][k]?'':'bx'}">${esc(mine)||'—'}${myVetoed?' <i>(no vale)</i>':''}</span><b>${G.pts[me][k]}</b></div>
+        <div class="bans"><span class="${G.pts[op][k]?'':'bx'}">${esc(his)||'—'}</span><b>${G.pts[op][k]}</b>
+          ${hisOk&&connected?`<button class="bveto ${vetoed?'on':''}" data-k="${k}" aria-pressed="${vetoed}">${vetoed?'Sí vale':'No vale'}</button>`:''}</div></div>`}).join('');
+    body=`<section class="panel"><div class="label center">Ronda ${G.round} · Letra ${G.letter}</div>
+      <p class="status">Esta ronda: tú ${G.roundPts[me]} – ${G.roundPts[op]} rival</p>
+      <div class="bhead"><span></span><span>Tú</span><span>Rival</span></div>${rows}
+      <p class="msg">100 puntos si es único, 50 si los dos pusieron lo mismo. Si tu rival puso algo que no existe, toca “No vale”.</p></section>
+      ${connected?'<button id="again">Siguiente letra</button>':''}`;
+  }
+  view.innerHTML=`<div class="stack">${head('🛑 Basta')}
+    <p class="status">Puntos totales: tú ${tot(me)} – ${tot(op)} rival</p>${body}${footer()}</div>`;
+  view.querySelectorAll('.binput').forEach(inp=>inp.addEventListener('input',()=>{
+    bastaDraft.ans[inp.dataset.k]=inp.value;
+    const b=document.getElementById('basta');
+    if(b)b.disabled=!(connected&&BASTA_CATS.every((_,k)=>normWord(bastaDraft.ans[k])));
+  }));
+  const bb=document.getElementById('basta');
+  if(bb)bb.onclick=()=>{bastaSent=G.round;doAct({k:'basta',ans:BASTA_CATS.map((_,k)=>bastaDraft.ans[k]||'')})};
+  view.querySelectorAll('.bveto').forEach(b=>b.onclick=()=>doAct({k:'veto',i:+b.dataset.k}));
+  wireCommon();
+}
+
+/* ---- Serpientes y escaleras ---- */
+const DICE=['','⚀','⚁','⚂','⚃','⚄','⚅'];
+function serpXY(n){const r=Math.floor((n-1)/10),c=r%2===0?(n-1)%10:9-(n-1)%10;return [c*10+5,(9-r)*10+5]}
+function renderSerp(){
+  const G=S.g.serp, myTurn=G.status==='playing'&&G.turn===me&&connected;
+  let cells='';
+  for(let row=9;row>=0;row--)for(let c=0;c<10;c++){
+    const n=row%2===0?row*10+c+1:row*10+(9-c)+1;
+    cells+=`<div class="sc${(row+c)%2?' alt':''}${n===100?' goal':''}">${n}</div>`;
+  }
+  let over='';
+  for(const [a,b] of Object.entries(SERP_LADDERS)){
+    const [x1,y1]=serpXY(+a),[x2,y2]=serpXY(b), dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy), ox=-dy/len*1.6, oy=dx/len*1.6;
+    let rungs='';const nr=Math.max(2,Math.round(len/5));for(let k=1;k<nr;k++){const t=k/nr;rungs+=`<line x1="${x1+dx*t+ox}" y1="${y1+dy*t+oy}" x2="${x1+dx*t-ox}" y2="${y1+dy*t-oy}"/>`}
+    over+=`<g class="lad"><line x1="${x1+ox}" y1="${y1+oy}" x2="${x2+ox}" y2="${y2+oy}"/><line x1="${x1-ox}" y1="${y1-oy}" x2="${x2-ox}" y2="${y2-oy}"/>${rungs}</g>`;
+  }
+  for(const [a,b] of Object.entries(SERP_SNAKES)){
+    const [x1,y1]=serpXY(+a),[x2,y2]=serpXY(b), mx=(x1+x2)/2, my=(y1+y2)/2, dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy)||1;
+    const w=Math.min(8,len/4), px=-dy/len*w, py=dx/len*w;
+    over+=`<path class="snk" d="M${x1} ${y1} Q ${x1+dx*.25+px} ${y1+dy*.25+py} ${mx} ${my} T ${x2} ${y2}"/><circle class="snkh" cx="${x1}" cy="${y1}" r="2.2"/>`;
+  }
+  const tok=(p,off)=>{const n=G.pos[p];if(!n)return '';const [x,y]=serpXY(n);return `<circle class="stok ${p}" cx="${x+off}" cy="${y+off}" r="3"/>`};
+  over+=tok('A',G.pos.A===G.pos.B?-1.5:0)+tok('B',G.pos.A===G.pos.B?1.5:0);
+  let lm='';
+  if(G.lastMove){
+    const m=G.lastMove, who=m.p===me?'Sacaste':'Tu rival sacó';
+    let extra='';
+    if(m.mid===m.from)extra=' · se necesita exacto para llegar a 100';
+    else if(SERP_LADDERS[m.mid])extra=` · 🪜 subió de ${m.mid} a ${m.to}`;
+    else if(SERP_SNAKES[m.mid])extra=` · 🐍 bajó de ${m.mid} a ${m.to}`;
+    lm=`<p class="msg center">${who} ${m.d}: ${m.from||'salida'} → ${m.mid}${extra}</p>`;
+  }
+  view.innerHTML=`<div class="stack">${head('🐍 Serpientes y escaleras')}
+    ${playersBar(G,'<span class="disc A" style="width:22px;height:22px"></span>','<span class="disc B" style="width:22px;height:22px"></span>')}
+    <p class="msg center">Casilla: tú ${G.pos[me]||'salida'} · rival ${G.pos[other(me)]||'salida'}</p>
+    <p class="status" aria-live="polite">${turnText(G)}</p>
+    <div class="serp"><div class="sgrid">${cells}</div><svg viewBox="0 0 100 100" aria-hidden="true">${over}</svg></div>
+    <div class="dicebox"><span class="die">${G.roll?DICE[G.roll]:'🎲'}</span>
+      ${G.status==='playing'?`<button id="roll" ${myTurn?'':'disabled'}>${myTurn?'Tirar dado':'Espera tu turno'}</button>`:''}</div>
+    ${lm}
+    ${tail(G)}</div>`;
+  const rb=document.getElementById('roll'); if(rb)rb.onclick=()=>{rb.disabled=true;doAct({k:'roll'})};
+  wireCommon();
+}
+
+/* ---- Póker ---- */
+const SUIT={s:'♠',h:'♥',d:'♦',c:'♣'};
+const cardHtml=(c,small)=>c?`<span class="card${'hd'.includes(c[1])?' red':''}${small?' sm':''}"><b>${c[0]==='T'?'10':c[0]}</b><i>${SUIT[c[1]]}</i></span>`:`<span class="card back${small?' sm':''}"></span>`;
+function renderPoker(){
+  const G=S.g.poker, op=other(me), myTurn=G.phase==='betting'&&G.toAct===me&&connected;
+  const showOp=G.phase==='handover'&&G.result&&G.result.show;
+  const board=Array.from({length:5},(_,i)=>G.board[i]?cardHtml(G.board[i]):'<span class="card slot"></span>').join('');
+  const potNow=G.pot+G.bet.A+G.bet.B;
+  const STREET=['Antes del flop','Flop','Turn','River'];
+  const actTxt=la=>!la?'':(la.p===me?'Tú: ':'Rival: ')+({fold:'se retiró',check:'pasó',call:'igualó',raise:'subió a '+la.x,allin:'¡all-in! ('+la.x+')'})[la.t];
+  let status='', ctrls='';
+  if(G.phase==='handover'){
+    const r=G.result;
+    if(r.winner==='split')status=`Empate: se reparten ${r.pot}`;
+    else status=(r.winner===me?'Ganaste ':'Tu rival ganó ')+r.pot+(r.fold?(r.fold===me?' (te retiraste)':' (se retiró)'):'');
+    if(r.show)status+=`<small>Tú: ${r.names[me]} · Rival: ${r.names[op]}</small>`;
+    if(G.status==='done')status=(G.winner===me?'¡Te quedaste con todas las fichas! 🎉':'Tu rival se quedó con todas las fichas')+`<small>${status}</small>`;
+    else ctrls=connected?'<button id="pknext">Siguiente mano</button>':'';
+  }else{
+    status=myTurn?'Te toca':(connected?'Turno de tu rival':'Esperando a tu rival…');
+    if(myTurn){
+      const toCall=G.bet[op]-G.bet[me], maxTo=G.bet[me]+G.stack[me], minTo=G.bet[op]+G.minRaise;
+      const canRaise=G.stack[op]>0&&maxTo>G.bet[op];
+      const opts=[];
+      if(canRaise){
+        const pot=potNow+toCall;
+        const add=(label,to)=>{to=Math.max(minTo,Math.min(maxTo,Math.round(to)));if(!opts.some(o=>o.to===to))opts.push({label:to===maxTo?'Todo ('+to+')':label+' ('+to+')',to})};
+        add('Mínimo',minTo); add('½ bote',G.bet[op]+pot/2); add('Bote',G.bet[op]+pot); add('Todo',maxTo);
+      }
+      ctrls=`<div class="row">
+        ${toCall>0?'<button class="ghost" id="pkfold">Retirarse</button>':''}
+        ${toCall>0?`<button id="pkcall">Igualar ${Math.min(toCall,G.stack[me])}</button>`:'<button id="pkcheck">Pasar</button>'}
+      </div>
+      ${opts.length?`<div class="label">Subir a</div><div class="pkraise">${opts.map(o=>`<button class="ghost" data-to="${o.to}">${o.label}</button>`).join('')}</div>`:''}`;
+    }
+  }
+  view.innerHTML=`<div class="stack">${head('🃏 Póker')}
+    <section class="felt">
+      <div class="pkseat"><div><b>Rival</b>${G.dealer===op?' <span class="dealer">D</span>':''}<small>${G.stack[op]} fichas</small></div>
+        <div class="hand">${(showOp?G.hole[op]:[null,null]).map(c=>cardHtml(c,true)).join('')}</div>${G.bet[op]?`<span class="chip">${G.bet[op]}</span>`:''}</div>
+      <div class="pkboard">${board}</div>
+      <p class="pkpot">Bote: ${potNow} · ${G.phase==='betting'?STREET[G.street]:'Mano '+G.hand}</p>
+      <div class="pkseat me"><div><b>Tú</b>${G.dealer===me?' <span class="dealer">D</span>':''}<small>${G.stack[me]} fichas</small></div>
+        <div class="hand">${G.hole[me].map(c=>cardHtml(c)).join('')}</div>${G.bet[me]?`<span class="chip">${G.bet[me]}</span>`:''}</div>
+    </section>
+    <p class="msg center">${actTxt(G.lastAct)}</p>
+    <p class="status" aria-live="polite">${status}</p>
+    ${ctrls}
+    <p class="msg center">Ciegas ${PK_SB}/${PK_BB}. Cada quien empieza con 1000 fichas; gana quien se quede con todas.</p>
+    ${G.status==='done'&&connected?'<button id="again">Otra partida</button>':''}${footer()}</div>`;
+  const on=(id,f)=>{const e=document.getElementById(id);if(e)e.onclick=f};
+  on('pkfold',()=>doAct({k:'fold'})); on('pkcall',()=>doAct({k:'call'})); on('pkcheck',()=>doAct({k:'check'})); on('pknext',()=>doAct({k:'pknext'}));
+  view.querySelectorAll('.pkraise button').forEach(b=>b.onclick=()=>doAct({k:'raise',to:+b.dataset.to}));
+  wireCommon();
+}
+
+/* ---- Juegos picantes ---- */
+function adultGate(title){
+  const ok=S.adult||{A:false,B:false};
+  if(ok.A&&ok.B)return null;
+  return `<div class="stack">${head(title)}
+    <section class="panel"><h2>Solo para adultos</h2>
+      <p class="msg">Este juego es para una pareja de mayores de edad (18+) que estén de acuerdo en jugarlo. Cualquiera puede decir “Paso” en cualquier momento, sin explicaciones.</p>
+      <p class="msg">Tú: ${ok[me]?'✅ aceptaste':'pendiente'} · Tu pareja: ${ok[other(me)]?'✅ aceptó':'pendiente'}</p>
+      ${ok[me]?'<p class="status">Esperando a que tu pareja acepte…</p>':`<button id="adultok" ${connected?'':'disabled'}>Tengo 18+ y quiero jugar</button>`}
+    </section>${footer()}</div>`;
+}
+function wireGate(){const b=document.getElementById('adultok');if(b)b.onclick=()=>doAct({k:'adult'});wireCommon()}
+const LVL={suave:'😊 Suave',picante:'🌶️ Picante',atrevido:'🔥 Atrevido'};
+
+function renderVerdad(){
+  const gate=adultGate('😈 Verdad o reto'); if(gate){view.innerHTML=gate;return wireGate()}
+  const G=S.g.verdad, mine=G.turn===me;
+  let body='';
+  if(G.phase==='choose'){
+    body=`<section class="panel"><div class="label">Nivel</div>
+      <div class="opts">${Object.keys(LVL).map(l=>`<button class="${G.level===l?'':'ghost'} vlvl" data-l="${l}" ${connected?'':'disabled'}>${LVL[l]}</button>`).join('')}</div></section>
+      ${G.lastDone?`<p class="msg center">${G.lastDone.who===me?'Tú':'Tu pareja'} ${G.lastDone.skip?'pasó':'cumplió'} ${G.lastDone.t==='verdad'?'la verdad':'el reto'}.</p>`:''}
+      <p class="status">${mine?'Te toca: ¿verdad o reto?':'Tu pareja está eligiendo…'}</p>
+      ${mine?`<div class="row"><button class="vbtn v" data-t="verdad" ${connected?'':'disabled'}>Verdad</button><button class="vbtn r" data-t="reto" ${connected?'':'disabled'}>Reto</button></div>`:''}`;
+  }else{
+    const c=G.card;
+    body=`<section class="vcard ${c.t}"><div class="label">${c.t==='verdad'?'Verdad':'Reto'} · ${LVL[c.level]}</div>
+      <p class="vtext">${esc(c.text)}</p>
+      <small>${mine?'Te toca a ti':'Le toca a tu pareja'}</small></section>
+      ${mine?`<div class="row"><button class="ghost" id="vskip">Paso</button><button id="vdone">¡Listo!</button></div>`:'<p class="msg center">Cuando termine, tu pareja toca “¡Listo!”.</p>'}`;
+  }
+  view.innerHTML=`<div class="stack">${head('😈 Verdad o reto')}${body}<p class="msg center">Rondas jugadas: ${G.count}</p>${footer()}</div>`;
+  view.querySelectorAll('.vlvl').forEach(b=>b.onclick=()=>doAct({k:'vlevel',level:b.dataset.l}));
+  view.querySelectorAll('.vbtn').forEach(b=>b.onclick=()=>doAct({k:'vpick',t:b.dataset.t}));
+  const d=document.getElementById('vdone'); if(d)d.onclick=()=>doAct({k:'vdone'});
+  const s=document.getElementById('vskip'); if(s)s.onclick=()=>doAct({k:'vdone',skip:true});
+  wireCommon();
+}
+
+function renderDado(){
+  const gate=adultGate('🎲 Dado picante'); if(gate){view.innerHTML=gate;return wireGate()}
+  const G=S.g.dado, mine=G.turn===me, R=G.roll;
+  const lv=l=>l==='suave'?'😊 Suave':'🔥 Atrevido';
+  view.innerHTML=`<div class="stack">${head('🎲 Dado picante')}
+    <section class="panel"><div class="label">Nivel</div>
+      <div class="opts two">${Object.keys(DADO).map(l=>`<button class="${G.level===l?'':'ghost'} dlvl" data-l="${l}" ${connected?'':'disabled'}>${lv(l)}</button>`).join('')}</div></section>
+    ${R?`<section class="vcard reto"><div class="label">Tirada ${R.n} · ${R.who===me?'tú se lo haces a tu pareja':'tu pareja te lo hace a ti'}</div>
+      <div class="dice3"><div><span>${esc(R.acc)}</span><small>Acción</small></div><div><span>${esc(R.zona)}</span><small>Zona</small></div><div><span>${R.t} s</span><small>Tiempo</small></div></div></section>`
+      :'<p class="msg center">Tira los dados: salen una acción, una zona del cuerpo y un tiempo. Quien tira se lo hace a su pareja.</p>'}
+    <p class="status">${mine?'Te toca tirar':'Le toca tirar a tu pareja'}</p>
+    ${mine?`<button id="droll" ${connected?'':'disabled'}>🎲 Tirar dados</button>`:''}
+    <p class="msg center">Si a alguno no le late, digan “paso” y vuelvan a tirar.</p>${footer()}</div>`;
+  view.querySelectorAll('.dlvl').forEach(b=>b.onclick=()=>doAct({k:'dlevel',level:b.dataset.l}));
+  const d=document.getElementById('droll'); if(d)d.onclick=()=>{d.disabled=true;doAct({k:'droll'})};
   wireCommon();
 }
 
